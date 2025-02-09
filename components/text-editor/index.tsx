@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { EditorContent } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { EditorBlockTools, EditorToolBar } from "./toolbar";
 import { format } from "date-fns";
 import { LinkPopover } from "./features";
-import { useDebouncedSave, useEditorConfiguration } from "./hooks";
+import { useEditorConfiguration } from "./hooks";
 
 export default function EditorComponent({
   content,
@@ -21,14 +21,8 @@ export default function EditorComponent({
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
-  const lastSavedContentRef = useRef(content);
-  const debouncedSave = useDebouncedSave(noteId);
 
-  const editor = useEditorConfiguration({
-    content,
-    lastSavedContentRef,
-    onContentUpdate: debouncedSave,
-  });
+  const editor = useEditorConfiguration({ content });
 
   useEffect(() => {
     setMounted(true);
@@ -40,13 +34,20 @@ export default function EditorComponent({
       return;
     }
     const content = editor.getHTML();
-    if (!content || content.replace(/<[^>]*>/g, "").trim().length === 0) {
-      alert("Please add some content before saving");
-      return;
-    }
+    // if (!content || content.replace(/<[^>]*>/g, "").trim().length === 0) {
+    //   alert("Please add some content before saving");
+    //   return;
+    // }
     setSaving(true);
     try {
-      await debouncedSave(content);
+      const response = await fetch("/api/note", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noteId, content }),
+      });
+      if (!response.ok) {
+        console.error("Error saving content");
+      }
       const today = new Date();
       router.push(`/notes/${today.toISOString().split("T")[0]}`);
     } catch (error) {
@@ -64,10 +65,19 @@ export default function EditorComponent({
         <p className="text-2xl font-bold">
           {format(new Date(), "MMMM d, yyyy")}
         </p>
-        <EditorBlockTools editor={editor} />
+
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save"}
+        </Button>
       </header>
       <div className="h-[calc(100%-4rem)]">
-        <ScrollArea className="relative h-[calc(100%-4rem)] rounded-lg border bg-card">
+        <ScrollArea
+          onClick={() => editor.view.focus()}
+          className="relative h-full cursor-text rounded-lg border bg-card"
+        >
+          <div className="overflow-auto border-b p-2">
+            <EditorBlockTools editor={editor} />
+          </div>
           <EditorContent
             editor={editor}
             className="size-full p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -75,25 +85,12 @@ export default function EditorComponent({
           <EditorToolBar editor={editor} />
           <LinkPopover editor={editor} />
         </ScrollArea>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="space-x-2">
-            <Button
-              onClick={handleSave}
-              disabled={
-                saving ||
-                editor
-                  ?.getHTML()
-                  .replace(/<[^>]*>/g, "")
-                  .trim().length === 0
-              }
-            >
-              {saving ? "Saving..." : "Save"}
-            </Button>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {editor?.storage.characterCount.words() ?? 0} words
-          </div>
-        </div>
+        {/* <div className="flex items-center gap-4 p-1 text-xs text-muted-foreground">
+          <span>{editor?.storage.characterCount.words() ?? 0} words</span>
+          <span>
+            {editor?.storage.characterCount.characters() ?? 0} characters
+          </span>
+        </div> */}
       </div>
     </div>
   );

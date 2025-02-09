@@ -1,7 +1,5 @@
 "use client";
 
-import debounce from "lodash/debounce";
-import { useCallback, useEffect } from "react";
 import { useEditor, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
@@ -14,55 +12,14 @@ import Underline from "@tiptap/extension-underline";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Heading from "@tiptap/extension-heading";
+import Highlight from "@tiptap/extension-highlight";
 import { EnterBehavior, FontSize } from "./extensions";
-import { MutableRefObject } from "react";
-
-export function useDebouncedSave(noteId: string | null, delay = 2000) {
-  const debouncedSaveCallback = useCallback(() => {
-    const saveContent = async (content: string) => {
-      if (!content || content.replace(/<[^>]*>/g, "").trim().length === 0) {
-        console.warn("Skipped saving due to empty content.");
-        return;
-      }
-      try {
-        const response = await fetch("/api/note", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ noteId, content }),
-        });
-        if (!response.ok) {
-          console.error("Error saving content");
-        }
-        return response.json();
-      } catch (error) {
-        console.error("Error saving content:", error);
-      }
-    };
-
-    return debounce((content: string) => saveContent(content), delay);
-  }, [noteId, delay]);
-
-  useEffect(() => {
-    const debouncedFn = debouncedSaveCallback();
-    return () => {
-      debouncedFn.cancel();
-    };
-  }, [debouncedSaveCallback]);
-
-  return debouncedSaveCallback();
-}
-
-export type EditorConfigurationProps = {
-  content: string;
-  lastSavedContentRef: MutableRefObject<string>;
-  onContentUpdate: (content: string) => void;
-};
 
 export function useEditorConfiguration({
   content,
-  lastSavedContentRef,
-  onContentUpdate,
-}: EditorConfigurationProps): Editor | null {
+}: {
+  content: string;
+}): Editor | null {
   return useEditor({
     extensions: [
       StarterKit.configure({
@@ -77,7 +34,7 @@ export function useEditorConfiguration({
       EnterBehavior,
       CharacterCount,
       Heading.configure({
-        levels: [1, 2],
+        levels: [1, 2, 3],
       }),
       FontFamily.configure({
         types: ["textStyle"],
@@ -97,6 +54,7 @@ export function useEditorConfiguration({
           class: "list-decimal ml-4",
         },
       }),
+      Highlight.configure({ multicolor: true }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -111,11 +69,5 @@ export function useEditorConfiguration({
     },
     content,
     immediatelyRender: false,
-    onUpdate: ({ editor }) => {
-      const newContent = editor.getHTML();
-      if (newContent !== lastSavedContentRef.current) {
-        onContentUpdate(newContent);
-      }
-    },
   });
 }
