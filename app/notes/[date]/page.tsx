@@ -31,7 +31,7 @@ export default async function DailyNotePage({
     return (
       <EditorComponent
         noteId={todayNote?._id?.toString() || null}
-        content={todayNote?.content || ""}
+        content={todayNote?.content || "<p>Start typing here...</p>"}
       />
     );
   }

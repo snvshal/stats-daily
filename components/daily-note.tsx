@@ -60,7 +60,7 @@ export function DailyNote({
           {note ? (
             <div className="rounded-lg bg-card p-6 shadow-sm">
               <div
-                className="prose prose-sm dark:prose-invert max-w-none"
+                className="prose prose-sm dark:prose-invert max-w-none whitespace-pre"
                 dangerouslySetInnerHTML={{ __html: note.content }}
               />
             </div>

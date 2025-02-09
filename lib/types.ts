@@ -193,6 +193,7 @@ export type TaskOptionsUIProps = {
   handleEditClick: () => void;
   nfaf: (s: boolean, i: number) => void;
   showTaskState: boolean;
+  loading: boolean;
 };
 
 //  Range Chart Component Props Type

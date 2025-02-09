@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Editor } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,9 @@ import {
   ListOrderedIcon,
   LinkIcon,
   TypeIcon,
+  StrikethroughIcon,
+  Code2Icon,
+  HighlighterIcon,
 } from "lucide-react";
 import { TooltipComponent } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -39,7 +42,7 @@ export function BoldButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().toggleBold().run()}
-        className={editor.isActive("bold") ? "bg-accent" : ""}
+        className={cn("h-8 w-8", editor.isActive("bold") ? "bg-accent" : "")}
       >
         <BoldIcon className="h-4 w-4" />
       </Button>
@@ -54,7 +57,7 @@ export function ItalicButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={editor.isActive("italic") ? "bg-accent" : ""}
+        className={cn("h-8 w-8", editor.isActive("italic") ? "bg-accent" : "")}
       >
         <ItalicIcon className="h-4 w-4" />
       </Button>
@@ -69,7 +72,10 @@ export function UnderlineButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
-        className={editor.isActive("underline") ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor.isActive("underline") ? "bg-accent" : "",
+        )}
       >
         <UnderlineIcon className="h-4 w-4" />
       </Button>
@@ -88,7 +94,7 @@ export function FontFamilyButton({ editor }: { editor: Editor }) {
     >
       <TooltipComponent content="Font Family">
         <SelectTrigger
-          className="w-[180px]"
+          className="h-8 w-[180px]"
           onMouseDown={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -127,7 +133,7 @@ export function FontSizeButton({ editor }: { editor: Editor }) {
     >
       <TooltipComponent content="Font Size">
         <SelectTrigger
-          className="w-[100px]"
+          className="h-8 w-[100px]"
           onMouseDown={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -161,53 +167,8 @@ export function TextColorButton({ editor }: { editor: Editor }) {
         type="color"
         defaultValue="#000000"
         onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
-        className="size-10 cursor-pointer"
+        className="h-8 w-8 cursor-pointer"
       />
-    </TooltipComponent>
-  );
-}
-
-export function AlignLeftButton({ editor }: { editor: Editor }) {
-  return (
-    <TooltipComponent content="Align Left">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().setTextAlign("left").run()}
-        className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
-      >
-        <AlignLeftIcon className="h-4 w-4" />
-      </Button>
-    </TooltipComponent>
-  );
-}
-
-export function AlignCenterButton({ editor }: { editor: Editor }) {
-  return (
-    <TooltipComponent content="Align Center">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().setTextAlign("center").run()}
-        className={editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}
-      >
-        <AlignCenterIcon className="h-4 w-4" />
-      </Button>
-    </TooltipComponent>
-  );
-}
-
-export function AlignRightButton({ editor }: { editor: Editor }) {
-  return (
-    <TooltipComponent content="Align Right">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().setTextAlign("right").run()}
-        className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
-      >
-        <AlignRightIcon className="h-4 w-4" />
-      </Button>
     </TooltipComponent>
   );
 }
@@ -267,7 +228,7 @@ export function LinkButton({
             variant="ghost"
             size="icon"
             onClick={() => setIsLinkPopoverOpen(true)}
-            className={isLinkPopoverOpen ? "bg-accent" : ""}
+            className={cn("h-8 w-8", isLinkPopoverOpen ? "bg-accent" : "")}
           >
             <LinkIcon className="h-4 w-4" />
           </Button>
@@ -277,28 +238,146 @@ export function LinkButton({
         <div className="flex flex-col space-y-2">
           <Input
             type="text"
-            placeholder="Enter URL (e.g., example.com)"
+            placeholder="Enter URL"
             value={linkUrl}
             onChange={(e) => {
               setLinkUrl(e.target.value);
               setLinkError("");
             }}
             onKeyDown={(e) => e.key === "Enter" && setLink()}
-            className={cn(linkError ? "border-red-500" : "", "h-10")}
+            className={cn(linkError ? "border-red-500" : "", "h-9")}
           />
           {linkError && <div className="text-sm text-red-500">{linkError}</div>}
           <div className="flex justify-end space-x-2">
             <Button
+              size="sm"
               variant="outline"
               onClick={() => handleLinkPopoverOpen(false)}
             >
               Cancel
             </Button>
-            <Button onClick={setLink}>Add Link</Button>
+            <Button size="sm" onClick={setLink}>
+              Add Link
+            </Button>
           </div>
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+export function StrikeButton({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Line Through">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor?.chain().focus().toggleStrike().run()}
+        className={cn("h-8 w-8", editor?.isActive("strike") ? "bg-accent" : "")}
+      >
+        <StrikethroughIcon className="h-4 w-4" />
+      </Button>
+    </TooltipComponent>
+  );
+}
+
+export function CodeButton({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Code">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor?.chain().focus().toggleCode().run()}
+        className={cn("h-8 w-8", editor?.isActive("code") ? "bg-accent" : "")}
+      >
+        <Code2Icon className="h-4 w-4" />
+      </Button>
+    </TooltipComponent>
+  );
+}
+
+export function HighlightButton({ editor }: { editor: Editor }) {
+  const [color, setColor] = useState("#FFFF00");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const toggleHighlight = () => {
+    editor.chain().focus().toggleHighlight({ color }).run();
+  };
+
+  const openColorPicker = () => inputRef.current?.click();
+
+  return (
+    <div className="relative flex items-center">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={openColorPicker}
+        className={cn(
+          "h-8 w-8",
+          editor.isActive("highlight", { color }) ? "bg-accent" : "",
+        )}
+      >
+        <HighlighterIcon className="h-4 w-4" />
+      </Button>
+
+      <input
+        ref={inputRef}
+        type="color"
+        value={color}
+        onChange={(e) => {
+          setColor(e.target.value);
+          toggleHighlight();
+        }}
+        className="invisible absolute"
+      />
+    </div>
+  );
+}
+
+// Header Items
+
+export function AlignLeftButton({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Align Left">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor.chain().focus().setTextAlign("left").run()}
+        className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
+      >
+        <AlignLeftIcon className="h-4 w-4" />
+      </Button>
+    </TooltipComponent>
+  );
+}
+
+export function AlignCenterButton({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Align Center">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor.chain().focus().setTextAlign("center").run()}
+        className={editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}
+      >
+        <AlignCenterIcon className="h-4 w-4" />
+      </Button>
+    </TooltipComponent>
+  );
+}
+
+export function AlignRightButton({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Align Right">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor.chain().focus().setTextAlign("right").run()}
+        className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
+      >
+        <AlignRightIcon className="h-4 w-4" />
+      </Button>
+    </TooltipComponent>
   );
 }
 
@@ -331,6 +410,23 @@ export function HeadingLevel2Button({ editor }: { editor: Editor }) {
         className={editor?.isActive("heading", { level: 2 }) ? "bg-accent" : ""}
       >
         <span>H2</span>
+      </Button>
+    </TooltipComponent>
+  );
+}
+
+export function HeadingLevel3Button({ editor }: { editor: Editor }) {
+  return (
+    <TooltipComponent content="Heading Level 3">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() =>
+          editor?.chain().focus().toggleHeading({ level: 3 }).run()
+        }
+        className={editor?.isActive("heading", { level: 3 }) ? "bg-accent" : ""}
+      >
+        <span>H3</span>
       </Button>
     </TooltipComponent>
   );

@@ -13,7 +13,7 @@ import IconButton from "../ui/icon-button";
 import { deleteTask } from "@/lib/services/handle-delete";
 import { Input } from "../ui/input";
 import { handleKeyDownEnter, ntf } from "@/lib/utils";
-import { Check, Pencil, Trash, X, Ellipsis } from "lucide-react";
+import { Check, Pencil, Trash, X, Ellipsis, Loader2 } from "lucide-react";
 import {
   TaskStatus,
   TaskContent,
@@ -51,6 +51,7 @@ export default function TaskListItem(props: TaskListItemsProps) {
   const [alertDialog, setAlertDialog] = useState(false);
   const [emptyInputAlert, setEmptyInputAlert] = useState(false);
   const [showTaskState, setShowTaskState] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -68,12 +69,15 @@ export default function TaskListItem(props: TaskListItemsProps) {
   const handleEditTask = async () => {
     if (!validateEditedTask()) return;
 
+    setLoading(true);
     dispatch(setEditedTask({ index, task: inputTask }));
     nfaf(false, index);
 
     const taskObj = { ...taskItem, task: inputTask };
 
     await updateTask(areaId, taskObj as TTask);
+
+    setLoading(false);
   };
 
   const validateEditedTask = () => {
@@ -144,6 +148,10 @@ export default function TaskListItem(props: TaskListItemsProps) {
                 onChange={handleEditInputChange}
                 onKeyDown={(e) => handleKeyDownEnter(e, handleEditTask)}
                 onBlur={(e) => handleOnBlur(e)}
+                disabled={loading}
+                aria-label="Edit task"
+                aria-invalid={emptyInputAlert}
+                aria-required="true"
               />
               {emptyInputAlert && <InputRequiredAlert />}
             </>
@@ -171,6 +179,7 @@ export default function TaskListItem(props: TaskListItemsProps) {
                   handleDeleteTask={handleDeleteTask}
                   handleEditClick={handleEditClick}
                   showTaskState={showTaskState}
+                  loading={loading}
                 />
               }
             />
@@ -186,6 +195,7 @@ export default function TaskListItem(props: TaskListItemsProps) {
             handleDeleteTask={handleDeleteTask}
             handleEditClick={handleEditClick}
             showTaskState={showTaskState}
+            loading={loading}
           />
         </TaskOptions>
       </div>
@@ -247,6 +257,7 @@ export function TaskOptionsUI({
   handleDeleteTask,
   handleEditClick,
   showTaskState,
+  loading,
 }: TaskOptionsUIProps) {
   const [windowWidth, setWindowWidth] = useState(0);
 
@@ -259,25 +270,36 @@ export function TaskOptionsUI({
   }, []);
 
   if (oita) {
-    return (
-      <>
-        <IconButton
-          id="edit-button"
-          className="max-sm:mr-2"
-          onClick={handleEditTask}
-          aria-label="Save Edited Task"
-        >
-          <Check size={15} />
-        </IconButton>
-        <IconButton
-          className="max-sm:hidden"
-          onClick={() => nfaf(false, index)}
-          aria-label="Close Editing Task"
-        >
-          <X size={15} />
-        </IconButton>
-      </>
-    );
+    if (loading) {
+      return (
+        <div className="flex-center mr-2 size-8 max-sm:w-full">
+          <Loader2 className="animate-spin" aria-hidden="true" />
+          <span role="status" aria-live="assertive" className="sr-only">
+            Saving updated Task
+          </span>
+        </div>
+      );
+    } else {
+      return (
+        <>
+          <IconButton
+            id="edit-button"
+            className="max-sm:mr-2"
+            onClick={handleEditTask}
+            aria-label="Save Edited Task"
+          >
+            <Check size={15} />
+          </IconButton>
+          <IconButton
+            className="max-sm:hidden"
+            onClick={() => nfaf(false, index)}
+            aria-label="Close Editing Task"
+          >
+            <X size={15} />
+          </IconButton>
+        </>
+      );
+    }
   } else {
     if (windowWidth < 640 && !showTaskState) {
       return (

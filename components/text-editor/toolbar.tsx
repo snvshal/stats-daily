@@ -2,12 +2,6 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Editor } from "@tiptap/core";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { BoxIcon } from "lucide-react";
 import { usePopper } from "react-popper";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import {
@@ -15,16 +9,20 @@ import {
   AlignLeftButton,
   AlignRightButton,
   BoldButton,
+  CodeButton,
   FontFamilyButton,
   FontSizeButton,
   HeadingLevel1Button,
   HeadingLevel2Button,
+  HeadingLevel3Button,
+  HighlightButton,
   HorizontalLineButton,
   ItalicButton,
   LineBreakButton,
   LinkButton,
   ListButton,
   ListOrderedButton,
+  StrikeButton,
   TextColorButton,
   UnderlineButton,
 } from "./toolbar-items";
@@ -126,21 +124,24 @@ export function EditorToolBar({ editor }: { editor: Editor }) {
           {...attributes.popper}
           className="z-50 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-2 shadow-sm"
         >
-          <ScrollArea className="h-10 w-80 sm:w-96 lg:w-auto">
+          <ScrollArea className="h-8 w-80 sm:w-96 lg:w-auto">
             <div className="flex-start gap-1">
               <BoldButton editor={editor} />
               <ItalicButton editor={editor} />
               <UnderlineButton editor={editor} />
               <FontFamilyButton editor={editor} />
               <FontSizeButton editor={editor} />
+              <StrikeButton editor={editor} />
+              <CodeButton editor={editor} />
               <TextColorButton editor={editor} />
+              <HighlightButton editor={editor} />
               <LinkButton
                 editor={editor}
                 linkUrl={linkUrl}
                 setLinkUrl={setLinkUrl}
               />
             </div>
-            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="horizontal" className="hidden" />
           </ScrollArea>
         </div>
       )}
@@ -152,25 +153,20 @@ export function EditorBlockTools({ editor }: { editor: Editor }) {
   if (!editor) return null;
 
   return (
-    <Popover>
-      <PopoverTrigger className="flex-center size-10 rounded-md border bg-background hover:bg-accent">
-        <BoxIcon className="size-4" />
-      </PopoverTrigger>
-      <PopoverContent side="bottom" className="w-auto p-2">
-        <ScrollArea className="h-72 w-10">
-          <div className="flex flex-col gap-1">
-            <HeadingLevel1Button editor={editor} />
-            <HeadingLevel2Button editor={editor} />
-            <ListButton editor={editor} />
-            <ListOrderedButton editor={editor} />
-            <AlignLeftButton editor={editor} />
-            <AlignCenterButton editor={editor} />
-            <AlignRightButton editor={editor} />
-            <LineBreakButton editor={editor} />
-            <HorizontalLineButton editor={editor} />
-          </div>
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
+    <ScrollArea className="w-full">
+      <div className="flex flex-wrap gap-2">
+        <HeadingLevel1Button editor={editor} />
+        <HeadingLevel2Button editor={editor} />
+        <HeadingLevel3Button editor={editor} />
+        <ListButton editor={editor} />
+        <ListOrderedButton editor={editor} />
+        <AlignLeftButton editor={editor} />
+        <AlignCenterButton editor={editor} />
+        <AlignRightButton editor={editor} />
+        <LineBreakButton editor={editor} />
+        <HorizontalLineButton editor={editor} />
+      </div>
+      <ScrollBar orientation="horizontal" className="hidden" />
+    </ScrollArea>
   );
 }
