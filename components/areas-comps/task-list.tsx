@@ -261,12 +261,10 @@ export function AddNewTask(props: AddNewTaskProps) {
   const [newTaskValue, setNewTaskValue] = useState("");
   const [alertDialog, setAlertDialog] = useState(false);
   const [emptyInputAlert, setEmptyInputAlert] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
     if (addTaskInput) {
       setNewTaskValue("");
-      setLoadingMessage("");
       setEmptyInputAlert(false);
       setTimeout(() => inputRef.current?.focus(), 10);
     }
@@ -278,7 +276,6 @@ export function AddNewTask(props: AddNewTaskProps) {
     if (!validateNewTask()) return;
 
     setLoading(true);
-    setLoadingMessage("Saving New Task");
 
     const newTaskInput = ntf(newTaskValue, false, 0);
     const { newTasks } = await createNewTask(areaId, newTaskInput);
@@ -353,7 +350,8 @@ export function AddNewTask(props: AddNewTaskProps) {
             onChange={handleNewTaskInputChange}
             onKeyDown={(e) => handleKeyDownEnter(e, addNewTask)}
             onBlur={(e) => handleOnBlur(e)}
-            aria-label="Add new task input"
+            disabled={loading}
+            aria-label="Add new task"
             aria-invalid={emptyInputAlert}
             aria-required="true"
           />
@@ -361,15 +359,13 @@ export function AddNewTask(props: AddNewTaskProps) {
         </TaskContent>
 
         <TaskOptions>
-          <span
-            role="status"
-            aria-live="assertive"
-            className="absolute left-[-9999px]"
-          >
-            {loadingMessage}
-          </span>
           {loading ? (
-            <Loader2 className="animate-spin max-sm:mr-2" aria-hidden="true" />
+            <div className="flex-center mr-2 size-8 max-sm:w-full">
+              <Loader2 className="animate-spin" aria-hidden="true" />
+              <span role="status" aria-live="assertive" className="sr-only">
+                Saving New Task
+              </span>
+            </div>
           ) : (
             <>
               <IconButton
