@@ -130,6 +130,8 @@ const Countdown = () => {
   const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [completedMessage, setCompletedMessage] = useState(false);
 
+  useEffect(() => setCurrentDate(new Date()), []);
+
   const daysLeft = useMemo(
     () => (targetDate ? differenceInCalendarDays(targetDate, currentDate) : 0),
     [targetDate, currentDate],
