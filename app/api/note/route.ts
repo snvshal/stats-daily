@@ -9,12 +9,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { noteId, content } = body;
 
-    if (content.replace(/<[^>]*>/g, "").trim().length === 0) {
-      return NextResponse.json(
-        { message: "Title and content are required." },
-        { status: 400 },
-      );
-    }
+    // if (content.replace(/<[^>]*>/g, "").trim().length === 0) {
+    //   return NextResponse.json(
+    //     { message: "Title and content are required." },
+    //     { status: 400 },
+    //   );
+    // }
 
     await connectToDatabase();
     const user = await currentUser();

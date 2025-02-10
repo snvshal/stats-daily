@@ -2,7 +2,7 @@
 
 import { HeaderProps, TStats, MainContentProps } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { PageFooter } from "@/components/home-page";
+// import { PageFooter } from "@/components/home-page";
 import { InfoIcon } from "lucide-react";
 import {
   Select,
@@ -32,7 +32,7 @@ export function StatsComponent({ data }: { data: TStats[] }) {
         setSelectedValue={setSelectedValue}
       >
         <NoStatsFound />
-        <PageFooter />
+        {/* <PageFooter /> */}
       </ChartHeader>
     );
   }
@@ -43,7 +43,7 @@ export function StatsComponent({ data }: { data: TStats[] }) {
       setSelectedValue={setSelectedValue}
     >
       <ChartMainContent stats={stats} selectedValue={selectedValue} />
-      <PageFooter />
+      {/* <PageFooter /> */}
     </ChartHeader>
   );
 }
