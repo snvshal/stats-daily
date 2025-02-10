@@ -131,9 +131,9 @@ export function EditorToolBar({ editor }: { editor: Editor }) {
               <UnderlineButton editor={editor} />
               <FontFamilyButton editor={editor} />
               <FontSizeButton editor={editor} />
+              <TextColorButton editor={editor} />
               <StrikeButton editor={editor} />
               <CodeButton editor={editor} />
-              <TextColorButton editor={editor} />
               <HighlightButton editor={editor} />
               <LinkButton
                 editor={editor}

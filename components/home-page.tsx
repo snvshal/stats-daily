@@ -120,7 +120,7 @@ export function PageFooter() {
   return (
     <footer className="flex-between h-16 w-full shrink-0 border-t border-muted px-4 sm:flex-row md:px-6">
       <p className="text-xs text-muted-foreground">
-        Copyright &copy; 2024 StatsDaily
+        Copyright &copy; 2025 StatsDaily
         <span className="max-sm:hidden"> — Daily Tasks Completion Tracker</span>
       </p>
       <Link href="https://github.com/snvshal/stats-daily" target="_blank">

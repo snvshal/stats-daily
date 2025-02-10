@@ -29,6 +29,9 @@ export function DailyNote({
   const isToday =
     format(new Date(), "yyyy-MM-dd") === format(parsedDate, "yyyy-MM-dd");
 
+  const isNoteContentEmpty =
+    note.content.replace(/<[^>]*>/g, "").trim().length === 0;
+
   return (
     <TitleHeader
       page={formattedDate}
@@ -48,26 +51,32 @@ export function DailyNote({
         </Link>
       }
     >
-      <div className="flex h-[calc(100vh-64px)]">
-        <div className="flex w-96 flex-col overflow-hidden border-r max-md:hidden">
-          <ScrollArea className="flex-1 overflow-y-auto p-4">
-            <div className="flex flex-col gap-4">
+      <div className="relative flex">
+        <div className="sticky top-0 flex h-[calc(100vh-64px)] w-96 flex-col overflow-hidden border-r max-md:hidden">
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="flex flex-col gap-4 p-4">
               <DailyNoteCards notes={notes} />
             </div>
           </ScrollArea>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 pb-8">
+        <div className="flex-1">
           {note ? (
-            <div className="rounded-lg bg-card p-6 shadow-sm">
-              <div
-                className="prose prose-sm dark:prose-invert max-w-none whitespace-pre"
-                dangerouslySetInnerHTML={{ __html: note.content }}
-              />
+            <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-6 lg:px-12">
+              {isNoteContentEmpty ? (
+                <p className="italic text-muted-foreground">Empty</p>
+              ) : (
+                <div
+                  className="prose prose-sm dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                />
+              )}
             </div>
           ) : (
-            <div className="flex h-[200px] items-center justify-center rounded-lg border bg-card">
+            <div className="m-4 flex h-[200px] items-center justify-center rounded-lg border bg-card">
               <div className="text-center">
-                <p className="text-muted-foreground">No note for this date</p>
+                <p className="text-muted-foreground">
+                  No note found for {formattedDate}
+                </p>
                 {isToday && (
                   <Link href="/notes/today">
                     <Button variant="outline" className="mt-4">
@@ -86,7 +95,7 @@ export function DailyNote({
 
 export function InValidDate() {
   return (
-    <div className="flex h-[50vh] items-center justify-center">
+    <div className="flex h-screen items-center justify-center">
       <div className="text-center">
         <p className="text-2xl font-bold">Invalid Date</p>
         <p className="mt-2 text-muted-foreground">Please select a valid date</p>
@@ -113,8 +122,8 @@ export function DailyNotes({ notes }: { notes: TNote[] }) {
         </Link>
       }
     >
-      <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="container mx-auto p-4 lg:p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <DailyNoteCards notes={notes} />
         </div>
       </div>
@@ -136,12 +145,14 @@ export function DailyNoteCards({ notes }: { notes: TNote[] }) {
     return html.replace(/<a\b[^>]*>(.*?)<\/a>/g, "<span>$1</span>");
   };
 
+  const isNoteContentEmpty = (content: string) =>
+    content.replace(/<[^>]*>/g, "").trim().length === 0;
   return (
     <>
       {notes.map((note) => (
         <Card
           key={note._id as string}
-          className="group relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
+          className="group relative h-[200px] cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
           onClick={() => readNote(note)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -154,18 +165,22 @@ export function DailyNoteCards({ notes }: { notes: TNote[] }) {
           aria-label={`Read note from ${format(note.createdAt as Date, "MMMM d, yyyy")}`}
         >
           <div className="absolute inset-0 z-10 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10" />
-          <CardHeader className="border-b text-xl font-bold">
+          <CardHeader className="border-b py-4">
             <CardTitle className="text-base text-primary">
               {format(note.createdAt as Date, "MMMM d, yyyy")}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div
-              className="line-clamp-3 text-sm"
-              dangerouslySetInnerHTML={{
-                __html: replaceAnchorWithSpan(note.content),
-              }}
-            />
+            {isNoteContentEmpty(note.content) ? (
+              <p className="italic text-muted-foreground">Empty</p>
+            ) : (
+              <div
+                className="line-clamp-3 text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: replaceAnchorWithSpan(note.content),
+                }}
+              />
+            )}
           </CardContent>
         </Card>
       ))}
@@ -194,7 +209,9 @@ export function TitleHeader({
         </div>
         <div>{actionItem}</div>
       </header>
-      {children}
+      <ScrollArea className="flex h-[calc(100vh-64px)] w-full justify-center overflow-auto">
+        <div className="mx-auto box-border max-w-6xl flex-1">{children}</div>
+      </ScrollArea>
     </div>
   );
 }

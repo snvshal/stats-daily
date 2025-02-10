@@ -94,7 +94,7 @@ export function FontFamilyButton({ editor }: { editor: Editor }) {
     >
       <TooltipComponent content="Font Family">
         <SelectTrigger
-          className="h-8 w-[180px]"
+          className="h-8 w-[150px]"
           onMouseDown={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -343,7 +343,10 @@ export function AlignLeftButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().setTextAlign("left").run()}
-        className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor.isActive({ textAlign: "left" }) ? "bg-accent" : "",
+        )}
       >
         <AlignLeftIcon className="h-4 w-4" />
       </Button>
@@ -358,7 +361,10 @@ export function AlignCenterButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().setTextAlign("center").run()}
-        className={editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor.isActive({ textAlign: "center" }) ? "bg-accent" : "",
+        )}
       >
         <AlignCenterIcon className="h-4 w-4" />
       </Button>
@@ -373,7 +379,10 @@ export function AlignRightButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().setTextAlign("right").run()}
-        className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor.isActive({ textAlign: "right" }) ? "bg-accent" : "",
+        )}
       >
         <AlignRightIcon className="h-4 w-4" />
       </Button>
@@ -390,7 +399,10 @@ export function HeadingLevel1Button({ editor }: { editor: Editor }) {
         onClick={() =>
           editor?.chain().focus().toggleHeading({ level: 1 }).run()
         }
-        className={editor?.isActive("heading", { level: 1 }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor?.isActive("heading", { level: 1 }) ? "bg-accent" : "",
+        )}
       >
         <span>H1</span>
       </Button>
@@ -407,7 +419,10 @@ export function HeadingLevel2Button({ editor }: { editor: Editor }) {
         onClick={() =>
           editor?.chain().focus().toggleHeading({ level: 2 }).run()
         }
-        className={editor?.isActive("heading", { level: 2 }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor?.isActive("heading", { level: 2 }) ? "bg-accent" : "",
+        )}
       >
         <span>H2</span>
       </Button>
@@ -424,7 +439,10 @@ export function HeadingLevel3Button({ editor }: { editor: Editor }) {
         onClick={() =>
           editor?.chain().focus().toggleHeading({ level: 3 }).run()
         }
-        className={editor?.isActive("heading", { level: 3 }) ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor?.isActive("heading", { level: 3 }) ? "bg-accent" : "",
+        )}
       >
         <span>H3</span>
       </Button>
@@ -439,7 +457,10 @@ export function ListButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor?.chain().focus().toggleBulletList().run()}
-        className={editor?.isActive("bulletList") ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor?.isActive("bulletList") ? "bg-accent" : "",
+        )}
       >
         <ListIcon className="h-4 w-4" />
       </Button>
@@ -454,7 +475,10 @@ export function ListOrderedButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-        className={editor?.isActive("orderedList") ? "bg-accent" : ""}
+        className={cn(
+          "h-8 w-8",
+          editor?.isActive("orderedList") ? "bg-accent" : "",
+        )}
       >
         <ListOrderedIcon className="h-4 w-4" />
       </Button>
@@ -469,6 +493,7 @@ export function LineBreakButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor?.chain().focus().setHardBreak().run()}
+        className="h-8 w-8"
       >
         <span>BR</span>
       </Button>
@@ -483,6 +508,7 @@ export function HorizontalLineButton({ editor }: { editor: Editor }) {
         variant="ghost"
         size="icon"
         onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+        className="h-8 w-8"
       >
         <span>—</span>
       </Button>
