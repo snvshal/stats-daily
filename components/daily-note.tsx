@@ -30,7 +30,7 @@ export function DailyNote({
     format(new Date(), "yyyy-MM-dd") === format(parsedDate, "yyyy-MM-dd");
 
   const isNoteContentEmpty =
-    note.content.replace(/<[^>]*>/g, "").trim().length === 0;
+    note && note.content.replace(/<[^>]*>/g, "").trim().length === 0;
 
   return (
     <TitleHeader
@@ -60,21 +60,19 @@ export function DailyNote({
           </ScrollArea>
         </div>
         <div className="flex-1">
-          {note ? (
-            <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-6 lg:px-12">
-              {isNoteContentEmpty ? (
+          <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-6 lg:px-12">
+            {note ? (
+              isNoteContentEmpty ? (
                 <p className="italic text-muted-foreground">Empty</p>
               ) : (
                 <div
                   className="prose prose-sm dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: note.content }}
                 />
-              )}
-            </div>
-          ) : (
-            <div className="m-4 flex h-[200px] items-center justify-center rounded-lg border bg-card">
-              <div className="text-center">
-                <p className="text-muted-foreground">
+              )
+            ) : (
+              <div>
+                <p className="italic text-muted-foreground">
                   No note found for {formattedDate}
                 </p>
                 {isToday && (
@@ -85,8 +83,8 @@ export function DailyNote({
                   </Link>
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </TitleHeader>
@@ -146,7 +144,8 @@ export function DailyNoteCards({ notes }: { notes: TNote[] }) {
   };
 
   const isNoteContentEmpty = (content: string) =>
-    content.replace(/<[^>]*>/g, "").trim().length === 0;
+    content && content.replace(/<[^>]*>/g, "").trim().length === 0;
+
   return (
     <>
       {notes.map((note) => (
