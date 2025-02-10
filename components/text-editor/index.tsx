@@ -62,40 +62,42 @@ export default function EditorComponent({
   if (!mounted || !editor) return null;
 
   return (
-    <TitleHeader
-      page={format(new Date(), "MMMM d, yyyy")}
-      actionItem={
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save"}
-        </Button>
-      }
-    >
-      <div className="bg-background p-4">
-        <div className="relative h-[calc(100vh-10rem)]">
-          <div className="overflow-auto rounded-t-lg border bg-background p-2">
-            <EditorBlockTools editor={editor} />
-          </div>
-          <ScrollArea
-            onClick={() => editor.view.focus()}
-            className="relative h-full cursor-text rounded-b-lg border border-t-0 bg-card"
-          >
-            <EditorContent
-              editor={editor}
-              onFocus={() => setIsVisible(true)}
-              onBlur={() => setIsVisible(false)}
-              className="h-full w-full px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-            <EditorToolBar editor={editor} />
-            <LinkPopover editor={editor} />
-          </ScrollArea>
-          {/* <div className="flex items-center gap-4 p-1 text-xs text-muted-foreground">
+    <>
+      <TitleHeader
+        page={format(new Date(), "MMMM d, yyyy")}
+        actionItem={
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save"}
+          </Button>
+        }
+      >
+        <div className="bg-background p-4">
+          <div className="relative h-[calc(100vh-10rem)]">
+            <div className="overflow-auto rounded-t-lg border bg-background p-2">
+              <EditorBlockTools editor={editor} />
+            </div>
+            <ScrollArea
+              onClick={() => editor.view.focus()}
+              className="relative h-full cursor-text rounded-b-lg border border-t-0 bg-card"
+            >
+              <EditorContent
+                editor={editor}
+                onFocus={() => setIsVisible(true)}
+                onBlur={() => setIsVisible(false)}
+                className="h-full w-full px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+              <EditorToolBar editor={editor} />
+              <LinkPopover editor={editor} />
+            </ScrollArea>
+            {/* <div className="flex items-center gap-4 p-1 text-xs text-muted-foreground">
           <span>{editor?.storage.characterCount.words() ?? 0} words</span>
           <span>
             {editor?.storage.characterCount.characters() ?? 0} characters
           </span>
         </div> */}
+          </div>
         </div>
-      </div>
+      </TitleHeader>
       {isVisible && (
         <div className="fixed bottom-0 left-0 z-50 flex w-full justify-around border-t bg-white p-3 shadow-md">
           <button className="rounded bg-blue-500 px-4 py-2 text-white">
@@ -109,6 +111,6 @@ export default function EditorComponent({
           </button>
         </div>
       )}
-    </TitleHeader>
+    </>
   );
 }
