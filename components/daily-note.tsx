@@ -208,7 +208,7 @@ export function TitleHeader({
         </div>
         <div>{actionItem}</div>
       </header>
-      <ScrollArea className="flex h-[calc(100vh-64px)] w-full justify-center overflow-auto">
+      <ScrollArea className="relative flex w-full justify-center overflow-auto">
         <div className="mx-auto box-border max-w-6xl flex-1">{children}</div>
       </ScrollArea>
     </div>

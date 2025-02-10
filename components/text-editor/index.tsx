@@ -71,13 +71,13 @@ export default function EditorComponent({
       }
     >
       <div className="bg-background p-4">
-        <div className="relative h-[calc(100vh-10rem)] max-md:h-auto">
+        <div className="relative">
           <div className="overflow-auto rounded-t-lg border bg-background p-2 max-md:hidden">
             <EditorBlockTools editor={editor} />
           </div>
           <ScrollArea
             onClick={() => editor.view.focus()}
-            className="relative h-full cursor-text rounded-b-lg bg-card md:border md:border-t-0"
+            className="relative h-[calc(100vh-10rem)] cursor-text rounded-b-lg bg-card max-md:h-auto md:border md:border-t-0"
           >
             <EditorContent
               editor={editor}
