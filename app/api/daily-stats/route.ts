@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-// import { dailyStats } from "@/lib/daily-stats";
-// import connectToDatabase from "@/lib/db/mongodb";
+import { dailyStats } from "@/lib/daily-stats";
+import connectToDatabase from "@/lib/db/mongodb";
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -11,18 +11,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log("Cron job running...");
-    // await connectToDatabase();
-    // await dailyStats();
-    return NextResponse.json(
-      { message: "Daily stats job completed successfully" },
-      { status: 200 },
-    );
+    await connectToDatabase();
+    await dailyStats();
+    return NextResponse.json({
+      success: true,
+      message: "Cron job executed successfully",
+    });
   } catch (error) {
     console.error("Error running daily stats job:", error);
-    return NextResponse.json(
-      { error: "Failed to run daily stats job" },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      success: false,
+      message: "Cron job not executed successfully",
+    });
   }
 }
