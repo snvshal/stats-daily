@@ -154,7 +154,7 @@ export function EditorBlockTools({ editor }: { editor: Editor }) {
 
   return (
     <ScrollArea className="w-full">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-nowrap gap-2">
         <HeadingLevel1Button editor={editor} />
         <HeadingLevel2Button editor={editor} />
         <HeadingLevel3Button editor={editor} />
