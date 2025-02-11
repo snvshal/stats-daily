@@ -83,7 +83,7 @@ export default function EditorComponent({
               editor={editor}
               onFocus={() => setIsVisible(true)}
               onBlur={() => setIsVisible(false)}
-              className="h-full w-full px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="h-full w-full py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-4"
             />
             <EditorToolBar editor={editor} />
             <LinkPopover editor={editor} />

@@ -60,7 +60,7 @@ export function DailyNote({
           </ScrollArea>
         </div>
         <div className="flex-1">
-          <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-6 lg:px-12">
+          <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-4 lg:px-12">
             {note ? (
               isNoteContentEmpty ? (
                 <p className="italic text-muted-foreground">Empty</p>
