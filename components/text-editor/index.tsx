@@ -70,20 +70,20 @@ export default function EditorComponent({
         </Button>
       }
     >
-      <div className="bg-background p-4">
-        <div className="relative">
-          <div className="overflow-auto rounded-t-lg border bg-background p-2 max-md:hidden">
+      <div className="bg-background md:p-4">
+        <div className="relative h-[calc(100vh-7.1rem)] md:h-[calc(100vh-9rem)]">
+          <div className="sticky top-0 z-20 flex border-b bg-background p-2 max-md:w-screen md:rounded-t-lg md:border">
             <EditorBlockTools editor={editor} />
           </div>
           <ScrollArea
             onClick={() => editor.view.focus()}
-            className="relative h-[calc(100vh-10rem)] cursor-text rounded-b-lg bg-card max-md:h-auto md:border md:border-t-0"
+            className="relative h-full rounded-b-lg bg-card p-4 md:border md:border-t-0"
           >
             <EditorContent
               editor={editor}
               onFocus={() => setIsVisible(true)}
               onBlur={() => setIsVisible(false)}
-              className="h-full w-full px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:mb-12"
+              className="h-full w-full px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
             <EditorToolBar editor={editor} />
             <LinkPopover editor={editor} />
@@ -96,11 +96,6 @@ export default function EditorComponent({
         </div> */}
         </div>
       </div>
-      {isVisible && (
-        <div className="fixed bottom-0 left-0 z-50 flex w-full justify-around border-t bg-background p-3 md:hidden">
-          <EditorBlockTools editor={editor} />
-        </div>
-      )}
     </TitleHeader>
   );
 }

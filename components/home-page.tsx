@@ -3,26 +3,28 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col">
-      <header className="flex h-14 items-center px-4 lg:px-6">
-        <SDIconWithTitle />
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link
-            href="/sign-in"
-            className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
-            prefetch={false}
-          >
-            Sign In
-          </Link>
-        </nav>
+    <div className="relative flex min-h-[100dvh] flex-col justify-center">
+      <header className="border-b">
+        <div className="flex-between mx-auto h-14 w-full max-w-7xl shrink-0 border-x px-4 sm:flex-row md:px-6">
+          <SDIconWithTitle />
+          <nav>
+            <Link
+              href="/sign-in"
+              className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Sign In
+            </Link>
+          </nav>
+        </div>
       </header>
-      <main className="flex-1">
-        <section className="relative h-[calc(100vh-3.5rem)] w-full py-12 md:py-24 lg:py-32">
-          <div className="container relative z-10 px-4 sm:px-8 md:px-16">
+      <main className="mx-auto w-full max-w-7xl flex-1 border-x">
+        {/* Hero Section */}
+        <section className="relative h-[calc(100vh-3.5rem)] w-full px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
+          <div className="relative z-10">
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
-                <p className="text-3xl font-bold tracking-tighter text-foreground/90 sm:text-5xl xl:text-6xl/none">
-                  Welcome to StatsDaily:
+                <p className="text-3xl font-bold tracking-tight text-foreground/90 sm:text-5xl xl:text-6xl/none">
+                  Welcome to StatsDaily
                   <br />
                   Your Task Tracking Companion
                 </p>
@@ -38,42 +40,45 @@ export default function HomePage() {
           <div className="animate-gradient-xy absolute inset-0 z-0 bg-gradient-to-r from-[#000000] to-[#000000] opacity-20" />
           <div className="animate-gradient-xy absolute inset-0 z-0 bg-[url('/stats.webp')] bg-cover bg-center opacity-10" />
         </section>
-        <section className="relative flex w-full flex-col gap-8 py-12 md:py-24">
-          <div className="space-y-4 px-4 sm:px-8 md:px-16">
-            <div className="space-y-2">
-              <p className="text-3xl font-bold tracking-tighter text-foreground/90 sm:text-5xl xl:text-6xl/none">
-                Intuitive Streamlined and
-                <br />
-                User-Focused Design
-              </p>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                Effortlessly manage your tasks with our intuitive interface,
+
+        <SectionComponent
+          title="Intuitive, Streamlined, and User-Focused Design"
+          description="Effortlessly manage your tasks with our intuitive interface,
                 designed to keep you organized, monitor your progress, and help
-                you achieve your goals efficiently.
+                you achieve your goals efficiently."
+          image="/layout.png"
+        />
+
+        <SectionComponent
+          title="Daily Note Writing Capture Your Thoughts & Progress"
+          description=" Write daily notes, reflect on your progress, and track key
+                insights in an organized, distraction-free editor."
+          image="/editor.png"
+        />
+        <SectionComponent
+          title="Task Completion Insights Visualize Your Progress"
+          description="Gain deep insights into your productivity with our task
+                completion radar chart. Understand strengths, identify gaps, and
+                optimize your workflow."
+          image="/stats.png"
+        />
+
+        {/* Call to Action */}
+        <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
+          <div className="flex flex-col items-center justify-center space-y-8 text-center">
+            <div className="space-y-2">
+              <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm text-foreground/90">
+                Get Started with StatsDaily
+              </div>
+              <p className="text-3xl font-bold tracking-tight text-foreground/90 sm:text-5xl">
+                Boost Your Daily Productivity
+              </p>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Sign up today to take control of your tasks and manage your time
+                effectively.
               </p>
             </div>
-            <div className="flex-center size-full">
-              <div className="div-bg-image bg-[url('/layout.png')]" />
-            </div>
-          </div>
-        </section>
-        <section className="w-full bg-background py-12 md:py-24 lg:py-32">
-          <div className="container px-4 sm:px-8 md:px-16">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm text-foreground/90">
-                  Get Started with StatsDaily
-                </div>
-                <p className="text-3xl font-bold tracking-tighter text-foreground/90 sm:text-5xl">
-                  Boost Your Daily Productivity
-                </p>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Sign up today to take control of your tasks and manage your
-                  time effectively.
-                </p>
-              </div>
-              <SignUpButton />
-            </div>
+            <SignUpButton />
           </div>
         </section>
       </main>
@@ -118,20 +123,56 @@ export function SignUpButton() {
 
 export function PageFooter() {
   return (
-    <footer className="flex-between h-16 w-full shrink-0 border-t border-muted px-4 sm:flex-row md:px-6">
-      <p className="text-xs text-muted-foreground">
-        Copyright &copy; 2025 StatsDaily
-        <span className="max-sm:hidden"> — Daily Tasks Completion Tracker</span>
-      </p>
-      <Link href="https://github.com/snvshal/stats-daily" target="_blank">
-        <Image
-          className="h-6 w-6"
-          src="/github.svg"
-          alt="github-logo"
-          width={24}
-          height={24}
-        />
-      </Link>
+    <footer className="border-t">
+      <div className="flex-between mx-auto h-16 w-full max-w-7xl shrink-0 border-x px-4 sm:flex-row md:px-6">
+        <p className="text-xs text-muted-foreground">
+          Copyright &copy; 2025 StatsDaily
+          <span className="max-sm:hidden">
+            {" "}
+            — Daily Tasks Completion Tracker
+          </span>
+        </p>
+        <Link href="https://github.com/snvshal/stats-daily" target="_blank">
+          <Image
+            className="h-6 w-6"
+            src="/github.svg"
+            alt="github-logo"
+            width={24}
+            height={24}
+          />
+        </Link>
+      </div>
     </footer>
+  );
+}
+
+function SectionComponent({
+  title,
+  description,
+  image,
+}: {
+  title: string;
+  description: string;
+  image: string;
+}) {
+  return (
+    <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <p className="text-balance text-3xl font-bold tracking-tight text-foreground/90 sm:text-5xl xl:text-6xl/none">
+            {title}
+          </p>
+          <p className="max-w-[600px] text-muted-foreground md:text-xl">
+            {description}
+          </p>
+        </div>
+        <div className="flex-center size-full">
+          <div
+            style={{ backgroundImage: `url(${image})` }}
+            className="div-bg-image"
+          />
+        </div>
+      </div>
+    </section>
   );
 }

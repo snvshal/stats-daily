@@ -19,7 +19,7 @@ export default function SignUpPage() {
 
   const handleSignIn = async () => {
     await signIn("google", { callbackUrl });
-    router.replace(callbackUrl); // Replace the sign-in route in history
+    router.replace(callbackUrl);
   };
 
   return (
@@ -33,12 +33,7 @@ export default function SignUpPage() {
             Your Daily Tasks Completion Tracker
           </CardDescription>
         </CardHeader>
-        <CardContent className="mt-4 space-y-4 p-0">
-          <div className="space-y-2 text-center">
-            <p className="text-sm text-muted-foreground">
-              Sign in to start boosting your productivity
-            </p>
-          </div>
+        <CardContent className="mt-6 space-y-4 p-0">
           <div className="flex-center w-full space-y-4">
             <Button
               variant="outline"
