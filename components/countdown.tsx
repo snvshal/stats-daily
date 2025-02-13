@@ -126,22 +126,25 @@ const Countdown = () => {
     minutes: 0,
     seconds: 0,
   });
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [completedMessage, setCompletedMessage] = useState(false);
 
   useEffect(() => setCurrentDate(new Date()), []);
 
   const daysLeft = useMemo(
-    () => (targetDate ? differenceInCalendarDays(targetDate, currentDate) : 0),
+    () =>
+      targetDate
+        ? differenceInCalendarDays(targetDate, currentDate as Date)
+        : 0,
     [targetDate, currentDate],
   );
 
   const daysInYear = useMemo(
     () =>
       eachDayOfInterval({
-        start: startOfYear(currentDate),
-        end: endOfYear(currentDate),
+        start: startOfYear(currentDate as Date),
+        end: endOfYear(currentDate as Date),
       }),
     [currentDate],
   );
@@ -231,7 +234,7 @@ const Countdown = () => {
                     "h-3 w-3",
                     isSameDay(day, targetDate as Date)
                       ? "animate-pulse bg-green-500"
-                      : isBefore(day, currentDate)
+                      : isBefore(day, currentDate as Date)
                         ? "bg-green-500/20 hover:bg-green-500/30"
                         : "bg-green-500/10 hover:bg-green-500/30",
                   )}
