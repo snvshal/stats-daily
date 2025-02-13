@@ -26,27 +26,8 @@ export default function AreaNote({ areaId, note }: AreaNoteProps) {
     }
   }, [inputNote]);
 
-  useEffect(() => {
-    const textarea = tRef.current;
-
-    const adjustHeight = () => {
-      const resize =
-        window.innerWidth < 640 ||
-        (window.innerWidth > 768 && window.innerWidth < 1024);
-
-      if (resize && textarea) {
-        textarea.style.height = "auto";
-        textarea.style.height = `${textarea.scrollHeight + 2}px`;
-      }
-    };
-
-    adjustHeight();
-    window.addEventListener("resize", adjustHeight);
-    return () => window.removeEventListener("resize", adjustHeight);
-  }, [inputNote]);
-
   const handleNoteChange = async () => {
-    if (noteInput.trim().length > areaNoteLength) {
+    if (noteInput?.trim().length > areaNoteLength) {
       setAlertDialog(true);
       return;
     }
@@ -95,7 +76,7 @@ export default function AreaNote({ areaId, note }: AreaNoteProps) {
           ref={tRef}
           name="note"
           value={noteInput}
-          className="bbn w-full rounded-md bg-transparent p-1 max-md:h-[calc(100%-40px)] max-md:resize-none max-sm:max-h-72 max-sm:resize-y lg:h-[calc(100%-40px)] lg:resize-none"
+          className="bbn h-[calc(100%-40px)] w-full resize-none rounded-md bg-transparent p-1"
           onChange={(e) => setNoteInput(e.target.value)}
           role="textbox"
           aria-label="Edit Note Textarea"

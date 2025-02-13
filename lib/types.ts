@@ -51,6 +51,20 @@ export type TNote = {
   createdAt?: Date;
 } & Document;
 
+// Achievement Schema Type
+export type TAchievementTask = {
+  _id?: string;
+  text: string;
+};
+
+export type TAchievement = {
+  userId: string;
+  achievements: TAchievementTask[];
+  note?: string;
+  updatedAt?: Date;
+  createdAt?: Date;
+} & Document;
+
 // TSC Type
 export type TSC = {
   areaId?: string;
