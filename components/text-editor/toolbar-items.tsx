@@ -307,30 +307,32 @@ export function HighlightButton({ editor }: { editor: Editor }) {
   const openColorPicker = () => inputRef.current?.click();
 
   return (
-    <div className="relative flex items-center">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={openColorPicker}
-        className={cn(
-          "h-8 w-8",
-          editor.isActive("highlight", { color }) ? "bg-accent" : "",
-        )}
-      >
-        <HighlighterIcon className="h-4 w-4" />
-      </Button>
+    <TooltipComponent content="Highlight Text">
+      <div className="relative flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={openColorPicker}
+          className={cn(
+            "h-8 w-8",
+            editor.isActive("highlight", { color }) ? "bg-accent" : "",
+          )}
+        >
+          <HighlighterIcon className="h-4 w-4" />
+        </Button>
 
-      <input
-        ref={inputRef}
-        type="color"
-        value={color}
-        onChange={(e) => {
-          setColor(e.target.value);
-          toggleHighlight();
-        }}
-        className="invisible absolute"
-      />
-    </div>
+        <input
+          ref={inputRef}
+          type="color"
+          value={color}
+          onChange={(e) => {
+            setColor(e.target.value);
+            toggleHighlight();
+          }}
+          className="invisible absolute"
+        />
+      </div>
+    </TooltipComponent>
   );
 }
 

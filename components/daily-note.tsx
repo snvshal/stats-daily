@@ -60,7 +60,7 @@ export function DailyNote({
           </ScrollArea>
         </div>
         <div className="flex-1">
-          <div className="rounded-lg bg-card px-6 pb-12 pt-6 shadow-sm max-md:px-12 max-sm:px-4 lg:px-12">
+          <div className="rounded-lg bg-card px-6 pb-12 pt-6 max-md:px-12 max-sm:px-4 lg:px-12">
             {note ? (
               isNoteContentEmpty ? (
                 <p className="italic text-muted-foreground">Empty</p>
@@ -199,7 +199,7 @@ export function TitleHeader({
   const router = useRouter();
   return (
     <div>
-      <header className="flex-between sticky top-0 z-40 h-16 border-b bg-background px-4 lg:px-6">
+      <header className="flex-between sticky top-0 z-20 h-16 border-b bg-background px-4 lg:px-6">
         <div className="flex-start gap-4">
           <button onClick={() => router.back()}>
             <ArrowLeftIcon className="size-6" />
@@ -209,7 +209,7 @@ export function TitleHeader({
         <div>{actionItem}</div>
       </header>
       <ScrollArea className="flex h-[calc(100vh-64px)] w-full justify-center overflow-auto">
-        <div className="mx-auto box-border max-w-6xl flex-1">{children}</div>
+        <div className="mx-auto box-border max-w-7xl flex-1">{children}</div>
       </ScrollArea>
     </div>
   );

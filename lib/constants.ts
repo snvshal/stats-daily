@@ -246,6 +246,22 @@ export const tasksArray = [
   },
 ];
 
+export const week = ["Mon", "Wed", "Fri"];
+export const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export const areaNameLength = 40;
 export const taskLength = 200;
 export const areaNoteLength = 500;

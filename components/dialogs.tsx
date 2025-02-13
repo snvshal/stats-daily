@@ -127,7 +127,7 @@ export function ValidationAlertDialog(props: ValidationAlertDialogProps) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex-start gap-1">
+          <AlertDialogTitle className="flex-start gap-2">
             <CircleAlert aria-hidden="true" />
             {category === "task"
               ? `Task Character Limit Exceeded!`

@@ -6,7 +6,15 @@ import { TSC, SetState, SidebarContentProps } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { insertAllAreas } from "@/features/area-slice";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { BarChart2, Blocks, Menu, Notebook, SquarePen } from "lucide-react";
+import {
+  BarChart2Icon,
+  BlocksIcon,
+  CalendarIcon,
+  MenuIcon,
+  NotebookIcon,
+  SquarePenIcon,
+  TrophyIcon,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -52,7 +60,7 @@ export default function Sidebar({
           onClick={toggleSidebar}
           aria-labelledby="open-sidebar-btn"
         >
-          <Menu size={20} />
+          <MenuIcon size={20} />
           <span id="open-sidebar-btn" className="hidden">
             Open Sidebar
           </span>
@@ -133,6 +141,12 @@ export function CreateAreaLink({
   setSidebarState: SetState<boolean>;
   isArea: boolean;
 }) {
+  const navLinks = [
+    { href: "/stats", text: "Stats", icon: BarChart2Icon },
+    { href: "/notes", text: "Notes", icon: NotebookIcon },
+    { href: "/achievements/today", text: "Achievements", icon: TrophyIcon },
+    { href: "/countdown", text: "Countdown", icon: CalendarIcon },
+  ];
   return (
     <div className="flex flex-col gap-2">
       <Link
@@ -145,7 +159,7 @@ export function CreateAreaLink({
           <p>StatsDaily</p>
         </span>
         <TooltipComponent content="Create Area">
-          <SquarePen
+          <SquarePenIcon
             size={20}
             aria-hidden="true"
             className="text-muted-foreground"
@@ -157,29 +171,23 @@ export function CreateAreaLink({
         <Popover>
           <PopoverTrigger className="flex-start mx-2 h-10 gap-4 rounded-lg pr-4">
             <span className="bbn flex-center size-10 rounded-lg p-0">
-              <Blocks size={24} />
+              <BlocksIcon size={20} />
             </span>
             <span>More</span>
           </PopoverTrigger>
           <PopoverContent className="left-8 space-y-2 shadow-lg">
-            <Link
-              href={"/stats"}
-              className="flex-start link-click-effect h-10 gap-4 rounded-lg"
-            >
-              <Button variant="ghost" className="bbn size-10 p-0">
-                <BarChart2 size={24} />
-              </Button>
-              <p>Stats</p>
-            </Link>
-            <Link
-              href={"/notes"}
-              className="flex-start link-click-effect h-10 gap-4 rounded-lg"
-            >
-              <Button variant="ghost" className="bbn size-10 p-0">
-                <Notebook size={24} />
-              </Button>
-              <p>Notes</p>
-            </Link>
+            {navLinks.map((link, index) => (
+              <Link
+                key={index}
+                href={link.href}
+                className="flex-start link-click-effect h-10 gap-4 rounded-lg"
+              >
+                <Button variant="ghost" className="bbn size-10 p-0">
+                  <link.icon size={20} />
+                </Button>
+                <p>{link.text}</p>
+              </Link>
+            ))}
           </PopoverContent>
         </Popover>
       )}
