@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { dailyStats } from "@/lib/daily-stats";
 import connectToDatabase from "@/lib/db/mongodb";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse("Unauthorized", {
+    return new Response("Unauthorized", {
       status: 401,
     });
   }
@@ -13,13 +13,13 @@ export async function GET(request: Request) {
   try {
     await connectToDatabase();
     await dailyStats();
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: "Cron job executed successfully",
     });
   } catch (error) {
     console.error("Error running daily stats job:", error);
-    return NextResponse.json({
+    return Response.json({
       success: false,
       message: "Cron job not executed successfully",
     });
