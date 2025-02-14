@@ -4,33 +4,69 @@ import connectToDatabase from "@/lib/db/mongodb";
 import { currentUser } from "@/lib/db/stats";
 import { TAchievement, TUser } from "@/lib/types";
 import { Achievement } from "@/models/acmt.model";
-import { differenceInDays, endOfYear, isSameDay, startOfYear } from "date-fns";
+import {
+  addDays,
+  differenceInDays,
+  endOfYear,
+  parseISO,
+  startOfDay,
+  startOfYear,
+} from "date-fns";
 import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 
-export const getAchievement = async () => {
+export const getAchievement = async (date?: string) => {
   try {
     await connectToDatabase();
     const user: TUser = await currentUser();
     const userId = user._id?.toString() as string;
 
-    let achievement: TAchievement | null = await Achievement.findOne({ userId })
-      .sort({ createdAt: -1 })
-      .limit(1);
+    let queryDate = new Date();
 
-    if (achievement && isSameDay(achievement.createdAt as Date, new Date())) {
-      return achievement;
+    // If a specific date is provided (not a special keyword), parse and validate it
+    if (date && !["today", "graph", "note"].includes(date)) {
+      const parsedDate = parseISO(date);
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error("Invalid date format. Please use yyyy-mm-dd");
+      }
+      queryDate = parsedDate;
     }
 
-    const newAchievement = await Achievement.create({
+    // Normalize to start of the day for consistency
+    queryDate = startOfDay(queryDate);
+
+    // Find achievement for the specified date
+    let achievement: TAchievement | null = await Achievement.findOne({
       userId,
-      achievements: [],
+      createdAt: {
+        $gte: queryDate,
+        $lt: addDays(queryDate, 1), // Next day boundary
+      },
     });
 
-    return newAchievement;
+    // If no achievement found, create one (only for today or special cases)
+    const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+    if (
+      !achievement &&
+      (!date ||
+        ["today", "graph", "note"].includes(date) ||
+        queryDate.toISOString().split("T")[0] === todayStr)
+    ) {
+      achievement = await Achievement.create({
+        userId,
+        achievements: [],
+        createdAt: queryDate,
+      });
+    }
+
+    return achievement;
   } catch (error) {
-    console.error(error);
-    throw new Error("Failed to fetch or create achievement");
+    console.error("Achievement error:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch or create achievement",
+    );
   }
 };
 
