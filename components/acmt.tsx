@@ -27,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { TitleHeader } from "@/components/daily-note";
 import { InputRequiredAlert } from "@/components/areas-comps/task-items";
 import { TooltipComponent } from "@/components/ui/tooltip";
@@ -40,8 +40,9 @@ import {
   getDay,
   addDays,
   isAfter,
+  parseISO,
 } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, handleKeyDownEnter } from "@/lib/utils";
 
 export default function AchievementForm({ id }: { id: string }) {
   const [input, setInput] = useState("");
@@ -133,7 +134,7 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
 
   return (
     <>
-      <div className="flex-between mb-2 sm:h-10">
+      <div className="flex-between mb-2 h-8 w-full">
         <p className="font-bold">Note</p>
         {inputNote ? (
           <span className="flex gap-2">
@@ -164,8 +165,9 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
           ref={tRef}
           name="note"
           value={noteInput}
-          className="bbn h-[calc(100%-48px)] w-full resize-none rounded-md bg-transparent p-1"
+          className="bbn w-full resize-none rounded-md bg-transparent p-1 max-sm:resize-y sm:h-[calc(100%-48px)]"
           onChange={(e) => setNoteInput(e.target.value)}
+          rows={10}
           role="textbox"
           aria-label="Edit Note Textarea"
         />
@@ -187,16 +189,16 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
 }
 
 export function AchievementNavButton() {
-  const { id } = useParams();
+  const { date } = useParams();
 
   const links = [
-    { label: "Note", href: "/achievements/note" },
+    { label: "Note", href: `/achievements/${date}/note` },
     { label: "Graph", href: "/achievements/graph" },
     { label: "Today", href: `/achievements/today` },
   ];
 
   const filteredLinks = links.filter(
-    (link) => link.href !== `/achievements/${id}`,
+    (link) => link.href !== `/achievements/${date}`,
   );
 
   return (
@@ -221,13 +223,13 @@ export function AchievementNavButton() {
 }
 
 export function AchievementComponent({
-  achievement,
+  children,
   achievementCount,
 }: {
-  achievement: TAchievement;
+  children: React.ReactNode;
   achievementCount: number[];
 }) {
-  const { id } = useParams();
+  const { date } = useParams();
 
   const [windowWidth, setWindowWidth] = useState(0);
 
@@ -239,38 +241,42 @@ export function AchievementComponent({
   }, []);
 
   return (
-    <TitleHeader page="Achievements" actionItem={<AchievementNavButton />}>
-      {id === "note" && windowWidth <= 768 ? (
-        <div className="h-[calc(100vh-4rem)] w-full p-4">
-          <AchievementNote
-            id={achievement._id as string}
-            note={achievement?.note as string}
-          />
-        </div>
-      ) : id === "graph" && windowWidth <= 640 ? (
-        <div className="flex w-full justify-center p-4">
-          <AchievementGraph achievementCount={achievementCount} />
-        </div>
+    <TitleHeader
+      page={`Achievements (${format(date as string, "MMM do")})`}
+      actionItem={<AchievementNavButton />}
+    >
+      {date === "graph" && windowWidth <= 640 ? (
+        <AchievementGraph achievementCount={achievementCount} />
       ) : (
         <div className="flex h-[calc(100vh-4rem)] gap-4 p-4">
-          <div className="flex flex-1 rounded-lg border">
-            <div className="flex-1">
-              <AchievementForm id={achievement._id as string} />
-              <Tasks achievement={achievement as TAchievement} />
-            </div>
-            <div className="h-full w-2/5 border-l p-4 max-md:hidden">
-              <AchievementNote
-                id={achievement._id as string}
-                note={achievement?.note as string}
-              />
-            </div>
-          </div>
+          <div className="flex flex-1 rounded-lg border">{children}</div>
           <div className="rounded-lg border max-sm:hidden">
             <AchievementGraph achievementCount={achievementCount} />
           </div>
         </div>
       )}
     </TitleHeader>
+  );
+}
+
+export function AchievementPageComponent({
+  achievement,
+}: {
+  achievement: TAchievement;
+}) {
+  return (
+    <>
+      <div className="flex-1">
+        <AchievementForm id={achievement._id as string} />
+        <Tasks achievement={achievement as TAchievement} />
+      </div>
+      <div className="h-full w-2/5 border-l p-4 max-md:hidden">
+        <AchievementNote
+          id={achievement._id as string}
+          note={achievement?.note as string}
+        />
+      </div>
+    </>
   );
 }
 
@@ -313,6 +319,7 @@ function AchievementGraph({
 }: {
   achievementCount: number[];
 }) {
+  const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => setCurrentDate(new Date()), []);
@@ -332,8 +339,8 @@ function AchievementGraph({
   );
 
   return (
-    <ScrollArea className="h-[calc(100vh-6rem)] p-4 px-6">
-      <div className="flex gap-4">
+    <ScrollArea className="w-full p-4 sm:h-[calc(100vh-6rem)] lg:px-8">
+      <div className="flex justify-center gap-4">
         <div className="mt-8 flex flex-col justify-around">
           {months.map((month) => (
             <div key={month} className="text-sm">
@@ -355,6 +362,7 @@ function AchievementGraph({
             ))}
             {achievementCount.map((count: number, index: number) => {
               const date = addDays(startOfYear(currentDate as Date), index);
+              const formattedDate = format(date, "yyyy-MM-dd");
               return (
                 <TooltipComponent
                   key={index}
@@ -365,6 +373,16 @@ function AchievementGraph({
                   }
                 >
                   <div
+                    role="button"
+                    tabIndex={1}
+                    onKeyDown={(e) =>
+                      handleKeyDownEnter(e, () =>
+                        router.push(`/achievements/${formattedDate}`),
+                      )
+                    }
+                    onClick={() =>
+                      router.push(`/achievements/${formattedDate}`)
+                    }
                     className={cn(
                       "h-4 w-4 rounded",
                       isAfter(date, currentDate as Date)
@@ -387,5 +405,22 @@ function AchievementGraph({
         </div>
       </div>
     </ScrollArea>
+  );
+}
+
+export function UnavailableAchievementPage() {
+  const { date } = useParams();
+  const parsedDate = parseISO(date as string);
+
+  return (
+    <div className="flex-center w-full flex-col">
+      <p className="mb-4 text-lg">
+        Achievements for {format(parsedDate, "MMMM do, yyyy")} are not
+        available.
+      </p>
+      <Button>
+        <Link href="/achievements/today">Go to Today's Achievements</Link>
+      </Button>
+    </div>
   );
 }
