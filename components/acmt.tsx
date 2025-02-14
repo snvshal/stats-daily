@@ -241,10 +241,7 @@ export function AchievementComponent({
   }, []);
 
   return (
-    <TitleHeader
-      page={`Achievements (${format(date as string, "MMM do")})`}
-      actionItem={<AchievementNavButton />}
-    >
+    <TitleHeader page="Achievements" actionItem={<AchievementNavButton />}>
       {date === "graph" && windowWidth <= 640 ? (
         <AchievementGraph achievementCount={achievementCount} />
       ) : (
