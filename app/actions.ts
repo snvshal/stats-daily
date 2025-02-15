@@ -8,7 +8,8 @@ import {
   addDays,
   differenceInDays,
   endOfYear,
-  parseISO,
+  format,
+  isAfter,
   startOfDay,
   startOfYear,
 } from "date-fns";
@@ -21,19 +22,24 @@ export const getAchievement = async (date?: string) => {
     const user: TUser = await currentUser();
     const userId = user._id?.toString() as string;
 
-    let queryDate = new Date();
+    let queryDate: Date;
 
-    // If a specific date is provided (not a special keyword), parse and validate it
-    if (date && !["today", "graph", "note"].includes(date)) {
-      const parsedDate = parseISO(date);
+    // Handle special cases first
+    if (!date || ["today", "graph"].includes(date)) {
+      queryDate = startOfDay(new Date());
+    } else {
+      // Parse the date string
+      const parsedDate = new Date(date);
       if (isNaN(parsedDate.getTime())) {
-        throw new Error("Invalid date format. Please use yyyy-mm-dd");
+        throw new Error("Invalid date format. Please use yyyy-MM-dd");
       }
-      queryDate = parsedDate;
-    }
+      queryDate = startOfDay(parsedDate);
 
-    // Normalize to start of the day for consistency
-    queryDate = startOfDay(queryDate);
+      // Prevent future dates
+      if (isAfter(queryDate, startOfDay(new Date()))) {
+        return null;
+      }
+    }
 
     // Find achievement for the specified date
     let achievement: TAchievement | null = await Achievement.findOne({
@@ -44,18 +50,13 @@ export const getAchievement = async (date?: string) => {
       },
     });
 
-    // If no achievement found, create one (only for today or special cases)
-    const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-    if (
-      !achievement &&
-      (!date ||
-        ["today", "graph", "note"].includes(date) ||
-        queryDate.toISOString().split("T")[0] === todayStr)
-    ) {
+    // Only create new achievement if it's for today
+    const isToday =
+      format(queryDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+    if (!achievement && isToday) {
       achievement = await Achievement.create({
         userId,
         achievements: [],
-        createdAt: queryDate,
       });
     }
 

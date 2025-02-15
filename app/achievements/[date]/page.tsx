@@ -1,12 +1,11 @@
 import { TAchievement } from "@/lib/types";
-import { getAchievement, getYearlyAchievementCount } from "@/app/actions";
+import { getAchievement } from "@/app/actions";
 import { ps } from "@/lib/utils";
 import {
-  AchievementComponent,
   AchievementPageComponent,
   UnavailableAchievementPage,
 } from "@/components/acmt";
-import { format, isAfter, parseISO, startOfDay } from "date-fns";
+import { format, isAfter, startOfDay } from "date-fns";
 import { notFound } from "next/navigation";
 
 export default async function Achievements({
@@ -20,18 +19,18 @@ export default async function Achievements({
     date = format(new Date(), "yyyy-MM-dd");
   }
 
-  const parsedDate = parseISO(date);
+  const parsedDate = new Date(date);
   if (isNaN(parsedDate.getTime())) notFound();
 
   const queryDate = startOfDay(parsedDate);
 
   if (isAfter(queryDate, startOfDay(new Date()))) {
-    return <UnavailableAchievementPage />;
+    return <UnavailableAchievementPage queryDate={queryDate} />;
   }
 
   const achievement = await getAchievement(date);
 
-  if (!achievement) return <UnavailableAchievementPage />;
+  if (!achievement) return <UnavailableAchievementPage queryDate={queryDate} />;
 
   return (
     <AchievementPageComponent achievement={ps(achievement as TAchievement)} />
