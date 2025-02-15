@@ -71,7 +71,7 @@ export default function EditorComponent({
       }
     >
       <div className="mx-auto max-w-3xl bg-background md:p-4">
-        <div className="relative h-[calc(100vh-7.1rem)] md:h-[calc(100vh-9rem)]">
+        <div className="relative h-[calc(100dvh-7.1rem)] md:h-[calc(100dvh-9rem)]">
           <div className="sticky top-0 z-20 flex border-b bg-background p-2 max-md:w-screen md:rounded-t-lg md:border">
             <EditorBlockTools editor={editor} />
           </div>

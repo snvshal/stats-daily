@@ -40,7 +40,6 @@ import {
   getDay,
   addDays,
   isAfter,
-  parseISO,
 } from "date-fns";
 import { cn, handleKeyDownEnter } from "@/lib/utils";
 
@@ -335,6 +334,33 @@ function AchievementGraph({
     [daysInYear],
   );
 
+  const getContributionColor = (
+    count: number,
+    date: Date,
+    currentDate: Date,
+  ) => {
+    if (isAfter(date, currentDate)) {
+      return "bg-foreground/5";
+    }
+
+    const levels = {
+      0: "bg-foreground/10",
+      1: "bg-foreground/25",
+      3: "bg-foreground/50",
+      5: "bg-foreground/70",
+      10: "bg-foreground/85",
+      max: "bg-foreground",
+    };
+
+    for (const [level, color] of Object.entries(levels)) {
+      if (count <= Number(level)) {
+        return color;
+      }
+    }
+
+    return levels.max;
+  };
+
   return (
     <ScrollArea className="w-full p-4 sm:h-[calc(100dvh-6rem)] lg:px-8">
       <div className="flex justify-center gap-4">
@@ -382,17 +408,7 @@ function AchievementGraph({
                     }
                     className={cn(
                       "h-4 w-4 rounded",
-                      isAfter(date, currentDate as Date)
-                        ? "bg-foreground/5"
-                        : count === 0
-                          ? "bg-foreground/10"
-                          : count <= 1
-                            ? "bg-foreground/25"
-                            : count <= 3
-                              ? "bg-foreground/50"
-                              : count <= 5
-                                ? "bg-foreground/75"
-                                : count >= 10 && "bg-foreground",
+                      getContributionColor(count, date, currentDate),
                     )}
                   />
                 </TooltipComponent>
@@ -405,15 +421,11 @@ function AchievementGraph({
   );
 }
 
-export function UnavailableAchievementPage() {
-  const { date } = useParams();
-  const parsedDate = parseISO(date as string);
-
+export function UnavailableAchievementPage({ queryDate }: { queryDate: Date }) {
   return (
-    <div className="flex-center flex-colp-4 w-full">
-      <p className="mb-4 text-balance text-center text-lg">
-        Achievements for {format(parsedDate, "MMMM do, yyyy")} are not
-        available.
+    <div className="flex-center w-full flex-col p-4">
+      <p className="mb-4 text-pretty text-center text-lg">
+        Achievements for {format(queryDate, "MMMM do, yyyy")} are not available.
       </p>
       <Button>
         <Link href="/achievements/today">Go to Today's Achievements</Link>
