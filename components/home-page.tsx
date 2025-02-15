@@ -19,7 +19,7 @@ export default function HomePage() {
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 border-x">
         {/* Hero Section */}
-        <section className="relative h-[calc(100vh-3.5rem)] w-full px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
+        <section className="relative h-[calc(100dvh-3.5rem)] w-full px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
           <div className="relative z-10">
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">

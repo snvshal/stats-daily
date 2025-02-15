@@ -27,7 +27,7 @@ export default async function AchievementNotePage({
   if (!achievement) return <UnavailableAchievementPage />;
 
   return (
-    <div className="h-[calc(100vh-4rem)] w-full p-4">
+    <div className="h-[calc(100dvh-4rem)] w-full p-4">
       <AchievementNote
         id={achievement?._id as string}
         note={achievement?.note as string}
