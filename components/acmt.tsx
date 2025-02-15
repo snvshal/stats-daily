@@ -245,7 +245,7 @@ export function AchievementComponent({
       {date === "graph" && windowWidth <= 640 ? (
         <AchievementGraph achievementCount={achievementCount} />
       ) : (
-        <div className="flex h-[calc(100vh-4rem)] gap-4 p-4">
+        <div className="flex h-[calc(100dvh-4rem)] gap-4 p-4">
           <div className="flex flex-1 rounded-lg border">{children}</div>
           <div className="rounded-lg border max-sm:hidden">
             <AchievementGraph achievementCount={achievementCount} />
@@ -281,7 +281,7 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
   const achievements = (achievement?.achievements ?? []) as TAchievementTask[];
 
   return (
-    <ScrollArea className="h-[calc(100vh-10rem)] overflow-auto">
+    <ScrollArea className="h-[calc(100dvh-10rem)] overflow-auto">
       <div className="grid grid-cols-1 gap-2 p-4">
         {[...achievements].reverse()?.map((task, index) => (
           <div key={index} className="flex h-full flex-col rounded-lg border">
@@ -336,7 +336,7 @@ function AchievementGraph({
   );
 
   return (
-    <ScrollArea className="w-full p-4 sm:h-[calc(100vh-6rem)] lg:px-8">
+    <ScrollArea className="w-full p-4 sm:h-[calc(100dvh-6rem)] lg:px-8">
       <div className="flex justify-center gap-4">
         <div className="mt-8 flex flex-col justify-around">
           {months.map((month) => (
@@ -410,8 +410,8 @@ export function UnavailableAchievementPage() {
   const parsedDate = parseISO(date as string);
 
   return (
-    <div className="flex-center w-full flex-col">
-      <p className="mb-4 text-lg">
+    <div className="flex-center flex-colp-4 w-full">
+      <p className="mb-4 text-balance text-center text-lg">
         Achievements for {format(parsedDate, "MMMM do, yyyy")} are not
         available.
       </p>

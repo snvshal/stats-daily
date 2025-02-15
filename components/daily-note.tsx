@@ -199,7 +199,7 @@ export function TitleHeader({
   const router = useRouter();
   return (
     <div>
-      <header className="flex-between sticky top-0 z-20 h-16 border-b bg-background px-4 lg:px-6">
+      <header className="flex-between fixed top-0 z-20 h-16 border-b bg-background px-4 lg:px-6">
         <div className="flex-start gap-4">
           <button onClick={() => router.back()}>
             <ArrowLeftIcon className="size-6" />
@@ -208,7 +208,7 @@ export function TitleHeader({
         </div>
         <div>{actionItem}</div>
       </header>
-      <ScrollArea className="flex h-[calc(100vh-64px)] w-full justify-center overflow-auto">
+      <ScrollArea className="mt-16 flex h-[calc(100dvh-4rem)] w-full justify-center overflow-auto">
         <div className="mx-auto box-border max-w-7xl flex-1">{children}</div>
       </ScrollArea>
     </div>

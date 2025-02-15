@@ -88,6 +88,9 @@ export default function EditorComponent({
             <EditorToolBar editor={editor} />
             <LinkPopover editor={editor} />
           </ScrollArea>
+          <div className="fixed bottom-0 left-0 z-20 flex border-b bg-background p-2">
+            <EditorBlockTools editor={editor} />
+          </div>
           {/* <div className="flex items-center gap-4 p-1 text-xs text-muted-foreground">
           <span>{editor?.storage.characterCount.words() ?? 0} words</span>
           <span>
