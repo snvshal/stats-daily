@@ -52,7 +52,7 @@ export function DailyNote({
       }
     >
       <div className="relative flex">
-        <div className="sticky top-0 flex h-[calc(100vh-64px)] w-96 flex-col overflow-hidden border-r max-md:hidden">
+        <div className="sticky top-0 flex h-[calc(100dvh-64px)] w-96 flex-col overflow-hidden border-r max-md:hidden">
           <ScrollArea className="flex-1 overflow-y-auto">
             <div className="flex flex-col gap-4 p-4">
               <DailyNoteCards notes={notes} />
