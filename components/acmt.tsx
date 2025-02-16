@@ -173,7 +173,9 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
       ) : (
         <ScrollArea className="h-[calc(100%-40px)] w-full overflow-auto overflow-x-hidden text-ellipsis">
           <p className="whitespace-pre-wrap">
-            {noteState || <span className="italic opacity-50">empty</span>}
+            {noteState || (
+              <span className="italic text-muted-foreground">empty</span>
+            )}
           </p>
         </ScrollArea>
       )}
@@ -196,9 +198,18 @@ export function AchievementNavButton() {
     { label: "Today", href: `/achievements/today` },
   ];
 
-  const filteredLinks = links.filter(
-    (link) => link.href !== `/achievements/${date}`,
-  );
+  const currentPath = `/achievements/${date}`;
+
+  const filteredLinks = links.filter((link) => {
+    const currentSegments = currentPath.split("/").filter(Boolean);
+    const linkSegments = link.href.split("/").filter(Boolean);
+
+    const isSubPath = currentSegments.every(
+      (segment, index) => linkSegments[index] === segment,
+    );
+
+    return !isSubPath || currentSegments.length !== linkSegments.length;
+  });
 
   return (
     <DropdownMenu>
@@ -210,10 +221,13 @@ export function AchievementNavButton() {
           <DropdownMenuItem
             key={link.href}
             className={cn(
+              "max-sm:h-10",
               (link.label === "Graph" || link.label === "Today") && "sm:hidden",
             )}
           >
-            <Link href={link.href}>{link.label}</Link>
+            <Link href={link.href} className="w-full">
+              {link.label}
+            </Link>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -281,31 +295,37 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
 
   return (
     <ScrollArea className="h-[calc(100dvh-10rem)] overflow-auto">
-      <div className="grid grid-cols-1 gap-2 p-4">
-        {[...achievements].reverse()?.map((task, index) => (
-          <div key={index} className="flex h-full flex-col rounded-lg border">
-            {/* Content that takes available space */}
-            <div className="flex-1 px-2 pt-2">
-              {task.text}
-              <span className="float-right pt-2">
-                <button
-                  onClick={async () =>
-                    await deleteAchievement(
-                      achievement._id as string,
-                      task._id as string,
-                    )
-                  }
-                >
-                  <TrashIcon
-                    size={15}
-                    className="text-muted-foreground hover:text-red-500"
-                  />
-                </button>
-              </span>
+      {!achievements.length ? (
+        <div className="flex-center h-full w-full pt-20">
+          <p className="italic text-muted-foreground">empty</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-2 p-4">
+          {[...achievements].reverse()?.map((task, index) => (
+            <div key={index} className="flex h-full flex-col rounded-lg border">
+              {/* Content that takes available space */}
+              <div className="flex-1 px-2 pt-2">
+                {task.text}
+                <span className="float-right pt-2">
+                  <button
+                    onClick={async () =>
+                      await deleteAchievement(
+                        achievement._id as string,
+                        task._id as string,
+                      )
+                    }
+                  >
+                    <TrashIcon
+                      size={15}
+                      className="text-muted-foreground hover:text-red-500"
+                    />
+                  </button>
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </ScrollArea>
   );
 }
@@ -362,16 +382,16 @@ function AchievementGraph({
   };
 
   return (
-    <ScrollArea className="w-full p-4 sm:h-[calc(100dvh-6rem)] lg:px-8">
+    <ScrollArea className="w-full p-4 max-sm:py-10 sm:h-[calc(100dvh-6rem)] lg:px-8">
       <div className="flex justify-center gap-4">
-        <div className="mt-8 flex flex-col justify-around">
+        <div className="mt-10 flex flex-col justify-around">
           {months.map((month) => (
             <div key={month} className="text-sm">
               {month}
             </div>
           ))}
         </div>
-        <div>
+        <div className="relative">
           <div className="flex-around mb-4">
             {week.map((day) => (
               <div key={day} className="text-sm">
