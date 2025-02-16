@@ -20,7 +20,6 @@ export default function EditorComponent({
 }) {
   const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   const router = useRouter();
 
@@ -50,8 +49,7 @@ export default function EditorComponent({
       if (!response.ok) {
         console.error("Error saving content");
       }
-      const today = new Date();
-      router.push(`/notes/${today.toISOString().split("T")[0]}`);
+      router.back();
     } catch (error) {
       alert("Error saving note. Please try again.");
     } finally {
@@ -81,8 +79,6 @@ export default function EditorComponent({
           >
             <EditorContent
               editor={editor}
-              onFocus={() => setIsVisible(true)}
-              onBlur={() => setIsVisible(false)}
               className="h-full w-full py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-4"
             />
             <EditorToolBar editor={editor} />
