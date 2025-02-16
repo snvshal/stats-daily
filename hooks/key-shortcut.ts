@@ -12,7 +12,7 @@ const useKeyShortcut = ({ key, modifiers = [], action }: ShortcutOptions) => {
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
       const modifiersMatch = modifiers.every((mod) => e[mod]);
-      if (e.key.toLowerCase() === key.toLowerCase() && modifiersMatch) {
+      if (e.key?.toLowerCase() === key.toLowerCase() && modifiersMatch) {
         action();
       }
     },

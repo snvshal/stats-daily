@@ -15,9 +15,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import IconButton from "@/components/ui/icon-button";
-import { ValidationAlertDialog } from "@/components/dialogs";
 import { TAchievement, TAchievementTask } from "@/lib/types";
-import { areaNoteLength, months, week } from "@/lib/constants";
+import { months, week } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -97,13 +96,18 @@ export default function AchievementForm({ id }: { id: string }) {
   );
 }
 
-export function AchievementNote({ id, note }: { id: string; note: string }) {
+export function AchievementNote({
+  achievement,
+}: {
+  achievement: TAchievement;
+}) {
+  const { _id: id, note } = achievement;
+
   const tRef = useRef<HTMLTextAreaElement>(null);
 
   const [inputNote, setInputNote] = useState(false);
-  const [noteState, setNoteState] = useState(note);
+  const [noteState, setNoteState] = useState(note as string);
   const [noteInput, setNoteInput] = useState(noteState);
-  const [alertDialog, setAlertDialog] = useState(false);
 
   useEffect(() => {
     const textarea = tRef.current;
@@ -115,15 +119,12 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
   }, [inputNote]);
 
   const handleNoteChange = async () => {
-    if (noteInput?.trim().length > areaNoteLength) {
-      setAlertDialog(true);
-      return;
-    }
+    if (!noteInput?.trim()) return;
 
     setInputNote(false);
     setNoteState(noteInput);
 
-    await updateAchievementNote(id, noteInput);
+    await updateAchievementNote(id as string, noteInput);
   };
 
   const handleInputNoteClose = () => {
@@ -133,7 +134,7 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
 
   return (
     <>
-      <div className="flex-between mb-2 h-8 w-full">
+      <div className="flex-between h-16 w-full p-4">
         <p className="font-bold">Note</p>
         {inputNote ? (
           <span className="flex gap-2">
@@ -160,18 +161,20 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
         )}
       </div>
       {inputNote ? (
-        <textarea
-          ref={tRef}
-          name="note"
-          value={noteInput}
-          className="bbn w-full resize-none rounded-md bg-transparent p-1 max-sm:resize-y sm:h-[calc(100%-48px)]"
-          onChange={(e) => setNoteInput(e.target.value)}
-          rows={10}
-          role="textbox"
-          aria-label="Edit Note Textarea"
-        />
+        <div className="h-[calc(100%-4rem)] px-4 pb-4">
+          <textarea
+            ref={tRef}
+            name="note"
+            value={noteInput}
+            className="bbn max-h-full w-full resize-none rounded-md bg-transparent p-2 max-sm:resize-y sm:h-full"
+            onChange={(e) => setNoteInput(e.target.value)}
+            rows={10}
+            role="textbox"
+            aria-label="Edit Note Textarea"
+          />
+        </div>
       ) : (
-        <ScrollArea className="h-[calc(100%-40px)] w-full overflow-auto overflow-x-hidden text-ellipsis">
+        <ScrollArea className="h-[calc(100%-4rem)] w-full overflow-auto overflow-x-hidden text-ellipsis px-4 pb-4">
           <p className="whitespace-pre-wrap">
             {noteState || (
               <span className="italic text-muted-foreground">empty</span>
@@ -179,12 +182,6 @@ export function AchievementNote({ id, note }: { id: string; note: string }) {
           </p>
         </ScrollArea>
       )}
-
-      <ValidationAlertDialog
-        category="note"
-        alertDialog={alertDialog}
-        setAlertDialog={setAlertDialog}
-      />
     </>
   );
 }
@@ -253,8 +250,25 @@ export function AchievementComponent({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  let formattedDate = "";
+
+  if (date) {
+    if (["today", "graph"].includes(date as string)) {
+      formattedDate = format(new Date(), "MMM do");
+    } else {
+      const parsedDate = new Date(date as string);
+      formattedDate = !isNaN(parsedDate.getTime())
+        ? format(parsedDate, "MMM do")
+        : "";
+    }
+  }
+
+  const pageTitle = formattedDate
+    ? `Achievements (${formattedDate})`
+    : "Achievements";
+
   return (
-    <TitleHeader page="Achievements" actionItem={<AchievementNavButton />}>
+    <TitleHeader page={pageTitle} actionItem={<AchievementNavButton />}>
       {date === "graph" && windowWidth <= 640 ? (
         <AchievementGraph achievementCount={achievementCount} />
       ) : (
@@ -278,13 +292,10 @@ export function AchievementPageComponent({
     <>
       <div className="flex-1">
         <AchievementForm id={achievement._id as string} />
-        <Tasks achievement={achievement as TAchievement} />
+        <Tasks achievement={achievement} />
       </div>
-      <div className="h-full w-2/5 border-l p-4 max-md:hidden">
-        <AchievementNote
-          id={achievement._id as string}
-          note={achievement?.note as string}
-        />
+      <div className="h-full w-2/5 border-l max-md:hidden">
+        <AchievementNote achievement={achievement} />
       </div>
     </>
   );
@@ -300,27 +311,34 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
           <p className="italic text-muted-foreground">empty</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2 p-4">
+        <div className="p-4">
           {[...achievements].reverse()?.map((task, index) => (
-            <div key={index} className="flex h-full flex-col rounded-lg border">
-              {/* Content that takes available space */}
-              <div className="flex-1 px-2 pt-2">
-                {task.text}
-                <span className="float-right pt-2">
-                  <button
-                    onClick={async () =>
-                      await deleteAchievement(
-                        achievement._id as string,
-                        task._id as string,
-                      )
-                    }
-                  >
-                    <TrashIcon
-                      size={15}
-                      className="text-muted-foreground hover:text-red-500"
-                    />
-                  </button>
+            <div
+              key={index}
+              className="mb-2 box-border flex h-full gap-2 rounded-lg border p-2"
+            >
+              <div>
+                <span className="flex-center bbn h-8 w-8 rounded-lg">
+                  {index + 1}
                 </span>
+              </div>
+              {/* Content that takes available space */}
+              <div className="flex-1">
+                <span>{task.text}</span>
+                <button
+                  onClick={async () =>
+                    await deleteAchievement(
+                      achievement._id as string,
+                      task._id as string,
+                    )
+                  }
+                  className="float-right pl-2 pt-2 leading-3"
+                >
+                  <TrashIcon
+                    size={15}
+                    className="leading-3 text-muted-foreground hover:text-red-500"
+                  />
+                </button>
               </div>
             </div>
           ))}
@@ -401,7 +419,7 @@ function AchievementGraph({
           </div>
           <div className="grid grid-flow-row grid-cols-7 gap-1.5">
             {emptyCells.map((_, index) => (
-              <div key={index} className="h-3 w-3 bg-transparent" />
+              <div key={`empty-${index}`} className="h-4 w-4 bg-transparent" />
             ))}
             {achievementCount.map((count: number, index: number) => {
               const date = addDays(startOfYear(currentDate as Date), index);
