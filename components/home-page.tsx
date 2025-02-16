@@ -63,6 +63,13 @@ export default function HomePage() {
           image="/stats.png"
         />
 
+        <SectionComponent
+          title="Your Daily Achievements Tracked & Organized"
+          description="Log your daily wins, track your progress,
+                and stay motivated. A simple yet powerful way to visualize your productivity."
+          image="/achievements.png"
+        />
+
         {/* Call to Action */}
         <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
           <div className="flex flex-col items-center justify-center space-y-8 text-center">
@@ -156,7 +163,7 @@ function SectionComponent({
   image: string;
 }) {
   return (
-    <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
+    <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-20">
       <div className="space-y-8">
         <div className="space-y-2">
           <p className="text-balance text-3xl font-bold tracking-tight text-foreground/90 sm:text-5xl xl:text-6xl/none">

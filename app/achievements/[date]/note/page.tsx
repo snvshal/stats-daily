@@ -1,5 +1,6 @@
 import { getAchievement } from "@/app/actions";
 import { AchievementNote, UnavailableAchievementPage } from "@/components/acmt";
+import { ps } from "@/lib/utils";
 import { format, isAfter, startOfDay } from "date-fns";
 import { notFound } from "next/navigation";
 
@@ -28,11 +29,8 @@ export default async function AchievementNotePage({
   if (!achievement) return <UnavailableAchievementPage queryDate={queryDate} />;
 
   return (
-    <div className="h-[calc(100dvh-4rem)] w-full p-4">
-      <AchievementNote
-        id={achievement?._id as string}
-        note={achievement?.note as string}
-      />
+    <div className="h-[calc(100dvh-6rem)] w-full">
+      <AchievementNote achievement={ps(achievement)} />
     </div>
   );
 }

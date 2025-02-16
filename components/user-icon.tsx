@@ -16,9 +16,14 @@ export default function UserProfile({ user }: { user: TUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar role="button" tabIndex={0} aria-label="View Profile">
-          <AvatarImage src={user?.image} />
-          <AvatarFallback>
+        <Avatar
+          role="button"
+          tabIndex={0}
+          aria-label="View Profile"
+          className="rounded-lg"
+        >
+          <AvatarImage src={user?.image} className="rounded-lg" />
+          <AvatarFallback className="rounded-lg">
             {user?.name?.charAt(0).toUpperCase() || "A"}
           </AvatarFallback>
         </Avatar>
