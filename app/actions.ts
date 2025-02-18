@@ -24,33 +24,26 @@ export const getAchievement = async (date?: string) => {
 
     let queryDate: Date;
 
-    // Handle special cases first
     if (!date || ["today", "graph"].includes(date)) {
       queryDate = startOfDay(new Date());
     } else {
-      // Parse the date string
       const parsedDate = new Date(date);
       if (isNaN(parsedDate.getTime())) {
         throw new Error("Invalid date format. Please use yyyy-MM-dd");
       }
       queryDate = startOfDay(parsedDate);
 
-      // Prevent future dates
-      if (isAfter(queryDate, startOfDay(new Date()))) {
-        return null;
-      }
+      if (isAfter(queryDate, startOfDay(new Date()))) return null;
     }
 
-    // Find achievement for the specified date
     let achievement: TAchievement | null = await Achievement.findOne({
       userId,
       createdAt: {
         $gte: queryDate,
-        $lt: addDays(queryDate, 1), // Next day boundary
+        $lt: addDays(queryDate, 1),
       },
     });
 
-    // Only create new achievement if it's for today
     const isToday =
       format(queryDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
     if (!achievement && isToday) {
@@ -153,11 +146,10 @@ export const getYearlyAchievementCount = async (): Promise<number[]> => {
     const user: TUser = await currentUser();
     const userId = user._id?.toString() as string;
 
-    const startDate = startOfYear(new Date()); // Jan 1st of the current year
-    const endDate = endOfYear(new Date()); // Dec 31st of the current year
+    const startDate = startOfYear(new Date());
+    const endDate = endOfYear(new Date());
     const totalDays = differenceInDays(endDate, startDate) + 1;
 
-    // Initialize array with zeros for all days of the year
     const dailyCounts = new Array(totalDays).fill(0);
 
     const achievementsByDay = await Achievement.aggregate([
@@ -174,12 +166,11 @@ export const getYearlyAchievementCount = async (): Promise<number[]> => {
             month: { $month: "$createdAt" },
             day: { $dayOfMonth: "$createdAt" },
           },
-          count: { $sum: { $size: "$achievements" } }, // Count total achievements per day
+          count: { $sum: { $size: "$achievements" } },
         },
       },
     ]);
 
-    // Fill the array based on aggregated data
     achievementsByDay.forEach((item) => {
       const date = new Date(item._id.year, item._id.month - 1, item._id.day);
       const dayIndex = differenceInDays(date, startDate);

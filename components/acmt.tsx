@@ -8,6 +8,7 @@ import {
 } from "@/app/actions";
 import {
   CheckIcon,
+  LinkIcon,
   Loader2Icon,
   PencilIcon,
   TrashIcon,
@@ -26,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { TitleHeader } from "@/components/daily-note";
 import { InputRequiredAlert } from "@/components/areas-comps/task-items";
 import { TooltipComponent } from "@/components/ui/tooltip";
@@ -188,30 +189,22 @@ export function AchievementNote({
 
 export function AchievementNavButton() {
   const { date } = useParams();
+  const pathname = usePathname();
 
   const links = [
     { label: "Note", href: `/achievements/${date}/note` },
     { label: "Graph", href: "/achievements/graph" },
-    { label: "Today", href: `/achievements/today` },
+    { label: "Today", href: "/achievements/today" },
   ];
 
-  const currentPath = `/achievements/${date}`;
-
-  const filteredLinks = links.filter((link) => {
-    const currentSegments = currentPath.split("/").filter(Boolean);
-    const linkSegments = link.href.split("/").filter(Boolean);
-
-    const isSubPath = currentSegments.every(
-      (segment, index) => linkSegments[index] === segment,
-    );
-
-    return !isSubPath || currentSegments.length !== linkSegments.length;
-  });
+  const filteredLinks = links.filter((link) => !(pathname === link.href));
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="md:hidden" asChild>
-        <Button variant="outline">Links</Button>
+        <Button size="icon" variant="outline">
+          <LinkIcon className="h-4 w-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {filteredLinks.map((link) => (
@@ -240,21 +233,15 @@ export function AchievementComponent({
   achievementCount: number[];
 }) {
   const { date } = useParams();
-
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const pathname = usePathname();
 
   let formattedDate = "";
 
   if (date) {
-    if (["today", "graph"].includes(date as string)) {
+    if (date === "today") {
       formattedDate = format(new Date(), "MMM do");
+    } else if (date === "graph") {
+      formattedDate = "Graph";
     } else {
       const parsedDate = new Date(date as string);
       formattedDate = !isNaN(parsedDate.getTime())
@@ -269,16 +256,27 @@ export function AchievementComponent({
 
   return (
     <TitleHeader page={pageTitle} actionItem={<AchievementNavButton />}>
-      {date === "graph" && windowWidth <= 640 ? (
-        <AchievementGraph achievementCount={achievementCount} />
-      ) : (
-        <div className="flex h-[calc(100dvh-4rem)] gap-4 p-4">
-          <div className="flex flex-1 rounded-lg border">{children}</div>
-          <div className="rounded-lg border max-sm:hidden">
-            <AchievementGraph achievementCount={achievementCount} />
-          </div>
+      <div className="flex h-[calc(100dvh-4rem)] gap-4 p-4 max-sm:justify-center">
+        <div
+          className={cn(
+            "flex flex-1 rounded-lg border",
+            date === "graph" &&
+              pathname !== "/achievements/graph/note" &&
+              "max-sm:hidden",
+          )}
+        >
+          {children}
         </div>
-      )}
+        <div
+          className={cn(
+            "rounded-lg sm:border",
+            (date !== "graph" || pathname === "/achievements/graph/note") &&
+              "max-sm:hidden",
+          )}
+        >
+          <AchievementGraph achievementCount={achievementCount} />
+        </div>
+      </div>
     </TitleHeader>
   );
 }
@@ -322,7 +320,6 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
                   {index + 1}
                 </span>
               </div>
-              {/* Content that takes available space */}
               <div className="flex-1">
                 <span>{task.text}</span>
                 <button
