@@ -11,7 +11,7 @@ export default async function AchievementNotePage({
 }) {
   let { date } = params;
 
-  if (["today"].includes(date)) {
+  if (["today", "graph"].includes(date)) {
     date = format(new Date(), "yyyy-MM-dd");
   }
 
