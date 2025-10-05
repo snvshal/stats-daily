@@ -16,6 +16,22 @@ export async function updateTask(areaId: string, task: TTask) {
   }
 }
 
+export async function updateStats(areaId: string, achieved: number) {
+  try {
+    const response = await fetch("/api/daily-stats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ areaId, achieved }),
+    });
+
+    if (!response.ok) throw new Error("Failed to update stats");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function updateNote(areaId: string, note: string) {
   try {
     const response = await fetch("/api/stats/task", {

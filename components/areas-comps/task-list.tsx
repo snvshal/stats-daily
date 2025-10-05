@@ -193,7 +193,11 @@ export function ShowCompletedTasks({
     <div
       className={`duration-400 absolute bottom-0 left-0 w-full overflow-hidden bg-background transition-all ease-in-out ${open ? "h-full" : "h-12 border-t max-sm:h-14"}`}
     >
-      <div className="flex-between sticky left-0 top-0 h-12 w-full border-b px-2 pr-4 max-sm:h-14">
+      <div
+        role="button"
+        onClick={() => setOpen(!open)}
+        className="flex-between sticky left-0 top-0 h-12 w-full border-b px-2 pr-4 max-sm:h-14"
+      >
         <span className="flex-center w-12 text-muted-foreground">
           <CheckCircle2 aria-hidden="true" />
         </span>

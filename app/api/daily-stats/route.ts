@@ -1,27 +1,16 @@
-import { NextRequest } from "next/server";
-import { dailyStats } from "@/lib/daily-stats";
-import connectToDatabase from "@/lib/db/mongodb";
+import { NextRequest, NextResponse } from "next/server";
+import { statsToday } from "@/lib/daily-stats";
 
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    await connectToDatabase();
-    await dailyStats();
-    return Response.json({
-      success: true,
-      message: "Cron job executed successfully",
-    });
+    const { areaId, achieved } = await request.json();
+    const response = await statsToday(areaId, achieved);
+
+    return NextResponse.json(response);
   } catch (error) {
-    console.error("Error running daily stats job:", error);
-    return Response.json({
+    return NextResponse.json({
       success: false,
-      message: "Cron job not executed successfully",
+      error: (error as Error).message,
     });
   }
 }

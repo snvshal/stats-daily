@@ -6,14 +6,14 @@ import React, { ButtonHTMLAttributes, InputHTMLAttributes } from "react";
 export type TStats = {
   userId: string;
   note?: string;
-  taskStats: taskStats[];
+  taskStats: TaskStats[];
   updatedAt?: Date;
   createdAt?: Date;
 } & Document;
 
-export type taskStats = {
+export type TaskStats = {
   area: string;
-  note: string;
+  note?: string;
   total: number;
   completed: number;
   achieved: number;
