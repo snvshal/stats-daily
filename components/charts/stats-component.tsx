@@ -75,7 +75,7 @@ export function ChartHeader({
               <SelectItem value="15">Last 15 days</SelectItem>
               <SelectItem value="7">Last 7 days</SelectItem>
               <SelectItem value="3">Last 3 days</SelectItem>
-              <SelectItem value="1">Yesterday</SelectItem>
+              <SelectItem value="1">Today</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

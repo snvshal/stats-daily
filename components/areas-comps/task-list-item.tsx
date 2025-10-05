@@ -8,7 +8,7 @@ import {
   ValidationAlertDialog,
 } from "../dialogs";
 import { Slider } from "../ui/slider";
-import { updateTask } from "@/lib/services/handle-update";
+import { updateStats, updateTask } from "@/lib/services/handle-update";
 import IconButton from "../ui/icon-button";
 import { deleteTask } from "@/lib/services/handle-delete";
 import { Input } from "../ui/input";
@@ -212,7 +212,7 @@ export function TaskStatusPC(props: TaskStatusPCProps) {
   // Ensure the state is typed as number[]
   const [value, setValue] = useState<number[]>([50]);
 
-  const handleClick = async () => {
+  const handleSaveTask = async () => {
     const taskObj = ntf(taskItem, true, value[0]);
 
     dispatch(setTaskCompletion({ index, achieved: value[0] }));
@@ -220,6 +220,7 @@ export function TaskStatusPC(props: TaskStatusPCProps) {
     setOpenDialog(false);
     setShowTaskState(false);
     await updateTask(areaId, taskObj as TTask);
+    await updateStats(areaId, value[0]);
   };
 
   if (openInputTask) {
@@ -227,7 +228,7 @@ export function TaskStatusPC(props: TaskStatusPCProps) {
   } else {
     return (
       <TaskCompletionDialog
-        onClick={handleClick}
+        onClick={handleSaveTask}
         task={taskItem.task}
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
@@ -240,7 +241,7 @@ export function TaskStatusPC(props: TaskStatusPCProps) {
             step={1}
             value={value}
             onValueChange={(newValue) => setValue(newValue)}
-            onKeyDown={(e) => handleKeyDownEnter(e, handleClick)}
+            onKeyDown={(e) => handleKeyDownEnter(e, handleSaveTask)}
           />
           <span>{value}%</span>
         </div>
