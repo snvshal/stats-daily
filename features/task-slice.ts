@@ -6,6 +6,7 @@ const taskSlice = createSlice({
   initialState: {
     incompleteTasks: <TTask[]>[],
     completedTasks: <TTask[]>[],
+    removedTasks: <{ task: TTask; index: number }[]>[],
   },
   reducers: {
     setIncompleteTasks: (state, action) => {
@@ -15,7 +16,6 @@ const taskSlice = createSlice({
       state.completedTasks = action.payload;
     },
     setTaskCompletion: (state, action) => {
-      console.log(action.payload);
       const { index, achieved } = action.payload;
       const taskItem = state.incompleteTasks[index];
 
@@ -47,10 +47,21 @@ const taskSlice = createSlice({
     },
     removeTaskById: (state, action) => {
       const taskId = action.payload;
+
+      const index = state.incompleteTasks.findIndex((t) => t._id === taskId);
+      const task = state.incompleteTasks[index];
+
+      if (!task) return;
+
+      // store backup {task + index}
+      state.removedTasks.push({ task, index });
+
+      // remove from list
       state.incompleteTasks = state.incompleteTasks.filter(
         (item) => item._id !== taskId,
       );
     },
+
     setEditedTask: (state, action) => {
       const { index, task } = action.payload;
       state.incompleteTasks[index].task = task;

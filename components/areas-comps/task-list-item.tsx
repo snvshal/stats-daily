@@ -31,6 +31,7 @@ import {
   setTaskCompletion,
   removeTaskById,
   setEditedTask,
+  setIncompleteTasks,
 } from "@/features/task-slice";
 import {
   DropdownMenu,
@@ -40,6 +41,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TooltipComponent } from "../ui/tooltip";
 import { taskLength } from "@/lib/constants";
+import { toast } from "sonner";
+import store from "@/store/store";
 
 export default function TaskListItem(props: TaskListItemsProps) {
   const { index, areaId, taskItem, oita, nfaf, areaName } = props;
@@ -54,6 +57,8 @@ export default function TaskListItem(props: TaskListItemsProps) {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  const deleteTimers = useRef(new Map<string, NodeJS.Timeout>());
 
   useEffect(() => {
     if (oita) inputRef.current?.focus();
@@ -103,10 +108,47 @@ export default function TaskListItem(props: TaskListItemsProps) {
     setEmptyInputAlert(value ? false : true);
   };
 
-  const handleDeleteTask = async () => {
-    setShowTaskState(false);
-    dispatch(removeTaskById(taskItem._id as string));
-    await deleteTask(areaId, taskItem._id as string);
+  const handleDeleteTask = () => {
+    dispatch(removeTaskById(taskItem._id));
+
+    toast("Task deleted", {
+      action: {
+        label: "Undo",
+        onClick: () => undoDelete(taskItem._id as string),
+      },
+      duration: 5000,
+    });
+
+    // create per-task timeout
+    const timeout = setTimeout(async () => {
+      await deleteTask(areaId, taskItem._id as string);
+      deleteTimers.current.delete(taskItem._id as string);
+    }, 5000);
+
+    deleteTimers.current.set(taskItem._id as string, timeout);
+  };
+
+  const undoDelete = (taskId: string) => {
+    const timer = deleteTimers.current.get(taskId);
+    if (!timer) return;
+
+    clearTimeout(timer);
+    deleteTimers.current.delete(taskId);
+
+    // find the backup in removedTasks
+    const removed = store
+      .getState()
+      .task.removedTasks.find((t) => t.task._id === taskId);
+    if (!removed) return;
+
+    const { task, index } = removed;
+
+    const current = store.getState().task.incompleteTasks;
+    const updated = [...current];
+    updated.splice(index, 0, task);
+
+    dispatch(setIncompleteTasks(updated));
+    toast.success("Task restored");
   };
 
   const handleOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {

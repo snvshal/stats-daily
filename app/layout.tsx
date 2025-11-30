@@ -5,6 +5,7 @@ import StoreProvider from "@/components/store-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import SessionProviderComponent from "@/components/session-provider";
 import { Session } from "next-auth";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -62,6 +63,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <StoreProvider>{children}</StoreProvider>
+            <Toaster />
           </ThemeProvider>
         </SessionProviderComponent>
       </body>

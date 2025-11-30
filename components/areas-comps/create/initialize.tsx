@@ -72,7 +72,6 @@ export const handleInit = async (
     const { rid, success, error } = await response.json();
 
     if (success) {
-      console.log("Initialization successful!");
       return rid;
     } else {
       console.error("Initialization failed:", error || "Unknown error");

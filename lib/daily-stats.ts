@@ -79,7 +79,6 @@ export const statsdaily = async (count: number): Promise<TStats[]> => {
       .sort({ createdAt: -1 })
       .limit(count);
     const taskStats = await taskStatsArray(stats);
-    console.log("1: ", stats[0].taskStats, "2: ", taskStats[0].taskStats);
     return taskStats;
   } catch (error) {
     console.error(error);

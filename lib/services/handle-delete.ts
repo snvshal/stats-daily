@@ -9,8 +9,6 @@ export async function deleteArea(areaId: string) {
     });
 
     if (!response.ok) throw new Error("Failed to delete task");
-
-    console.log("Area deleted successfully!", await response.json());
   } catch (error) {
     console.error("Error:", error);
   }
@@ -27,8 +25,6 @@ export async function deleteTask(areaId: string, taskId: string) {
     });
 
     if (!response.ok) throw new Error("Failed to delete task");
-
-    console.log("Task deleted successfully!", await response.json());
   } catch (error) {
     console.error("Error:", error);
   }
