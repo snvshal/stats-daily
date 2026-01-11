@@ -7,15 +7,17 @@ import { currentUser } from "@/lib/db/stats";
 export async function GET() {
   try {
     await connectToDatabase();
+
     const user = await currentUser();
-    if (!user) return NextResponse.json([], { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const keys = await ApiKey.find({ userId: user.id }).select("-keyHash");
 
     return NextResponse.json(keys);
   } catch (error) {
-    console.error("Get API key Error:", error);
-
+    console.error("Get API key error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -26,16 +28,23 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     await connectToDatabase();
-    const user = await currentUser();
-    if (!user) return NextResponse.json({}, { status: 401 });
 
-    const { name, scopes = [] } = await req.json();
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { name, scopes = ["mcp:read"] } = await req.json();
+
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
 
     const exists = await ApiKey.findOne({
       userId: user.id,
       name,
       revoked: false,
-      scopes: "mcp:read",
+      scopes: { $in: scopes },
     });
 
     if (exists) {
@@ -57,8 +66,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ apiKey: rawKey });
   } catch (error) {
-    console.error("Post API key Error:", error);
-
+    console.error("Post API key error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
