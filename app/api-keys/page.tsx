@@ -289,11 +289,15 @@ function CreateAPIKeyDialog({
                 )}
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="max-sm:gap-2">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setDialogOpen(false)}
+                onClick={() => {
+                  setDialogOpen(false);
+                  resetDialogState();
+                }}
+                disabled={loading}
               >
                 Cancel
               </Button>
@@ -339,7 +343,14 @@ function CreateAPIKeyDialog({
             </div>
 
             <DialogFooter>
-              <Button onClick={() => setDialogOpen(false)}>Done</Button>
+              <Button
+                onClick={() => {
+                  setDialogOpen(false);
+                  resetDialogState();
+                }}
+              >
+                Done
+              </Button>
             </DialogFooter>
           </>
         )}

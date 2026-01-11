@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     const key = await ApiKey.findOne({
       keyHash,
       revoked: false,
-      scopes: "mcp:read",
+      scopes: { $in: ["mcp:read"] },
       $or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }],
     });
 
