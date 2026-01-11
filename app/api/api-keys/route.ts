@@ -13,7 +13,9 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const keys = await ApiKey.find({ userId: user.id }).select("-keyHash");
+    const keys = await ApiKey.find({ userId: user.id })
+      .sort({ updatedAt: -1 })
+      .select("-keyHash");
 
     return NextResponse.json(keys);
   } catch (error) {
