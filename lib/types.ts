@@ -65,6 +65,16 @@ export type TAchievement = {
   createdAt?: Date;
 } & Document;
 
+export type ApiKeyDoc = {
+  userId: string;
+  keyHash: string;
+  name: string;
+  scopes: string[];
+  lastUsedAt?: Date;
+  expiresAt?: Date;
+  revoked: boolean;
+} & Document;
+
 // TSC Type
 export type TSC = {
   areaId?: string;

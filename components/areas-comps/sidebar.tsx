@@ -10,6 +10,7 @@ import {
   BarChart2Icon,
   BlocksIcon,
   CalendarIcon,
+  KeyIcon,
   MenuIcon,
   NotebookIcon,
   SquarePenIcon,
@@ -53,7 +54,7 @@ export default function Sidebar({
   const toggleSidebar = () => setSidebarState((prev) => !prev);
 
   return (
-    <div className="flex h-screen w-screen">
+    <div className="mx-auto flex h-screen w-full max-w-7xl">
       <Sheet open={isSidebarOpen} onOpenChange={setSidebarState}>
         <SheetTrigger
           className={`flex-center bbn fixed left-4 top-4 z-50 h-10 w-10 rounded-lg bg-background hover:bg-accent hover:text-accent-foreground max-md:flex md:hidden ${isSidebarOpen && "hidden"}`}
@@ -146,6 +147,7 @@ export function CreateAreaLink({
     { href: "/notes", text: "Notes", icon: NotebookIcon },
     { href: "/achievements/today", text: "Achievements", icon: TrophyIcon },
     { href: "/countdown", text: "Countdown", icon: CalendarIcon },
+    { href: "/api-keys", text: "API Keys", icon: KeyIcon },
   ];
   return (
     <div className="flex flex-col gap-2">
