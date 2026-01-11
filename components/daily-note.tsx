@@ -194,23 +194,27 @@ export function TitleHeader({
 }: {
   page: string;
   children: React.ReactNode;
-  actionItem?: JSX.Element;
-}) {
+  actionItem?: React.ReactElement;
+}): JSX.Element {
   const router = useRouter();
   return (
-    <div>
-      <header className="flex-between sticky top-0 z-20 h-16 border-b bg-background px-4 lg:px-6">
-        <div className="flex-start gap-4">
-          <button onClick={() => router.back()}>
-            <ArrowLeftIcon className="size-6" />
-          </button>
-          <p className="text-lg font-semibold">{page}</p>
-        </div>
-        <div>{actionItem}</div>
-      </header>
+    <main>
+      <div className="h-16 border-b">
+        <header className="flex-between sticky top-0 z-20 mx-auto h-16 max-w-7xl border-b bg-background px-4 lg:border-x lg:px-6">
+          <div className="flex-start gap-4">
+            <button onClick={() => router.back()}>
+              <ArrowLeftIcon className="size-6" />
+            </button>
+            <p className="text-lg font-semibold">{page}</p>
+          </div>
+          <div>{actionItem}</div>
+        </header>
+      </div>
       <ScrollArea className="flex h-[calc(100dvh-64px)] w-full justify-center overflow-auto">
-        <div className="mx-auto box-border max-w-7xl flex-1">{children}</div>
+        <div className="mx-auto box-border min-h-[calc(100dvh-64px)] max-w-7xl flex-1 lg:border-x">
+          {children}
+        </div>
       </ScrollArea>
-    </div>
+    </main>
   );
 }
