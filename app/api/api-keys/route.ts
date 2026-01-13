@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ApiKey } from "@/models/api-key.model";
 import { generateApiKey, hashApiKey } from "@/lib/api-key";
 import connectToDatabase from "@/lib/db/mongodb";
 import { currentUser } from "@/lib/db/stats";
+import { ALLOWED_SCOPES, Scope } from "@/lib/route/constants";
 
 export async function GET() {
   try {
@@ -27,7 +28,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
 
@@ -36,17 +37,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, scopes = ["mcp:read"] } = await req.json();
+    const body = await req.json();
+    const name = body.name?.trim();
+    const scopes: Scope[] = body.scopes?.length
+      ? body.scopes
+      : ["mcp:areas:read", "mcp:achievements:read"];
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    const invalid = scopes.filter((s) => !ALLOWED_SCOPES.includes(s));
+    if (invalid.length) {
+      return NextResponse.json(
+        { error: "Invalid scopes", invalid },
+        { status: 400 },
+      );
     }
 
     const exists = await ApiKey.findOne({
       userId: user.id,
       name,
       revoked: false,
-      scopes: { $in: scopes },
     });
 
     if (exists) {

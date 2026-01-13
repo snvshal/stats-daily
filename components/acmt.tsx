@@ -120,8 +120,6 @@ export function AchievementNote({
   }, [inputNote]);
 
   const handleNoteChange = async () => {
-    if (!noteInput?.trim()) return;
-
     setInputNote(false);
     setNoteState(noteInput);
 
@@ -300,7 +298,20 @@ export function AchievementPageComponent({
 }
 
 export function Tasks({ achievement }: { achievement: TAchievement }) {
-  const achievements = (achievement?.achievements ?? []) as TAchievementTask[];
+  const [achievements, setAchievements] = useState<TAchievementTask[]>(
+    (achievement?.achievements ?? []) as TAchievementTask[],
+  );
+
+  const handleDelete = async (taskId: string) => {
+    setAchievements((prev) => prev.filter((task) => task._id !== taskId));
+
+    try {
+      await deleteAchievement(achievement._id as string, taskId);
+    } catch (error) {
+      setAchievements((achievement?.achievements ?? []) as TAchievementTask[]);
+      console.error("Failed to delete achievement:", error);
+    }
+  };
 
   return (
     <ScrollArea className="h-[calc(100dvh-10rem)] overflow-auto">
@@ -323,12 +334,7 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
               <div className="flex-1">
                 <span>{task.text}</span>
                 <button
-                  onClick={async () =>
-                    await deleteAchievement(
-                      achievement._id as string,
-                      task._id as string,
-                    )
-                  }
+                  onClick={() => handleDelete(task._id as string)}
                   className="float-right pl-2 pt-2 leading-3"
                 >
                   <TrashIcon
