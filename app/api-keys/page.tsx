@@ -46,6 +46,7 @@ export default function ApiKeysPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState<Record<string, boolean>>({});
 
   async function loadKeys() {
     try {
@@ -69,6 +70,7 @@ export default function ApiKeysPage() {
   }
 
   async function revokeKey(id: string) {
+    setDeleting((prev) => ({ ...prev, [id]: true }));
     try {
       const res = await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
 
@@ -76,10 +78,12 @@ export default function ApiKeysPage() {
         throw new Error("Failed to revoke API key");
       }
 
-      await loadKeys();
+      setKeys((prev) => prev.filter((k) => k._id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to revoke API key");
       console.error("Error revoking key:", err);
+    } finally {
+      setDeleting((prev) => ({ ...prev, [id]: false }));
     }
   }
 
@@ -187,6 +191,7 @@ export default function ApiKeysPage() {
                       variant="outline"
                       onClick={() => openPermissionsDialog(key)}
                       className="hover:bg-muted"
+                      disabled={deleting[key._id]}
                     >
                       <SettingsIcon className="h-4 w-4" />
                     </Button>
@@ -196,9 +201,12 @@ export default function ApiKeysPage() {
                         variant="outline"
                         onClick={() => revokeKey(key._id)}
                         className="w-fit gap-2 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        disabled={deleting[key._id]}
                       >
                         <TrashIcon className="h-4 w-4" />
-                        <span className="sm:inline">Revoke</span>
+                        <span className="sm:inline">
+                          {deleting[key._id] ? "Revoking..." : "Revoke"}
+                        </span>
                       </Button>
                     )}
                   </div>
@@ -457,6 +465,7 @@ function CreateAPIKeyDialog({
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && createKey()}
                   className={`h-10 ${isDuplicateName ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  disabled={loading}
                 />
                 {isDuplicateName && (
                   <p className="text-sm text-destructive">
