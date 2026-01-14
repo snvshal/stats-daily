@@ -20,14 +20,46 @@ Stats Daily is a web application designed to help users track their daily tasks,
 - Clean and user-friendly interface
 - API Key management (create, revoke, scope-based access)
 - MCP-compatible context endpoint for AI agents
-<!-- - Secure, scoped, and revocable access -->
+- Secure, scoped, and revocable access
 
 ## MCP & API Access
 
-Stats Daily exposes a **read-only MCP context API** that allows users to connect their data to AI agents (Claude, Cursor, custom agents, etc.).
+Stats Daily exposes a **MCP context API** that allows users to connect their data to AI agents (Claude, Cursor, custom agents, etc.).
 
-<!-- ### Supported Scope
-- `mcp:read` — read-only access to tasks, notes, and areas -->
+### MCP Scopes & Permissions
+
+API keys use **scopes** to control what MCP clients are allowed to access.
+Each MCP endpoint validates scopes before processing the request.
+
+#### Available Scopes
+
+**Areas**
+
+- `mcp:areas:read` – Read areas and its tasks and note
+<!-- * `mcp:areas:write` – Create or update areas -->
+
+**Achievements**
+
+- `mcp:achievements:read` – Read achievements
+- `mcp:achievements:write` – Create achievements
+
+#### Scope Enforcement
+
+- **Read endpoints** require the corresponding `:read` scope
+- **Write endpoints** require the corresponding `:write` scope
+- Requests without the required scope return **403 Forbidden**
+
+#### Example
+
+To allow an MCP client to **read context and add achievements**, assign:
+
+```json
+["mcp:areas:read", "mcp:achievements:read", "mcp:achievements:write"]
+```
+
+Scopes can be updated at any time from the **API Keys → Permissions** settings for each API Key.
+
+---
 
 ### Authentication
 
@@ -37,18 +69,40 @@ All MCP requests are authenticated using **Bearer API keys**.
 Authorization: Bearer <API_KEY>
 ```
 
+---
+
 ### MCP Context Endpoint
 
 ```http
 GET /api/mcp/context
 ```
 
-Returns:
+Returns all areas with tasks for the authenticated user.
 
-- Areas
-- Tasks
-- Notes
-- Last updated timestamps
+---
+
+### MCP Achievements Endpoints
+
+```http
+GET /api/mcp/achievements
+```
+
+Returns all achievements for the authenticated user.
+
+```http
+POST /api/mcp/achievements
+```
+
+**Request body:**
+
+```json
+{
+  "text": "Achievement text",
+  "note": "Added note with it" // Optional
+}
+```
+
+Adds a new achievement for the authenticated user.
 
 ---
 
