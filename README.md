@@ -84,10 +84,10 @@ Returns all areas with tasks for the authenticated user.
 ### MCP Achievements Endpoints
 
 ```http
-GET /api/mcp/achievements
+GET /api/mcp/achievements?date=YYYY-MM-DD
 ```
 
-Returns all achievements for the authenticated user.
+Returns all achievements and note for the authenticated user on the specified date.
 
 ```http
 POST /api/mcp/achievements
