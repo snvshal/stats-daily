@@ -65,7 +65,7 @@ export type TAchievement = {
   createdAt?: Date;
 } & Document;
 
-export type ApiKeyDoc = {
+export type TApiKey = {
   userId: string;
   keyHash: string;
   name: string;
@@ -73,6 +73,14 @@ export type ApiKeyDoc = {
   lastUsedAt?: Date;
   expiresAt?: Date;
   revoked: boolean;
+} & Document;
+
+export type TApiUsage = {
+  apiKeyId: string;
+  userId: string;
+  resource: string;
+  date: Date;
+  count: number;
 } & Document;
 
 // TSC Type

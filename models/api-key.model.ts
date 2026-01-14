@@ -1,7 +1,7 @@
-import { ApiKeyDoc } from "@/lib/types";
+import { TApiKey } from "@/lib/types";
 import { Schema, model, models } from "mongoose";
 
-const ApiKeySchema = new Schema<ApiKeyDoc>(
+const ApiKeySchema = new Schema<TApiKey>(
   {
     userId: { type: String, required: true, index: true },
     keyHash: { type: String, required: true, unique: true },
@@ -14,4 +14,4 @@ const ApiKeySchema = new Schema<ApiKeyDoc>(
   { timestamps: true },
 );
 
-export const ApiKey = models.ApiKey || model<ApiKeyDoc>("ApiKey", ApiKeySchema);
+export const ApiKey = models.ApiKey || model<TApiKey>("ApiKey", ApiKeySchema);

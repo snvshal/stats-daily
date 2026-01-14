@@ -1,31 +1,16 @@
 import { NextResponse } from "next/server";
-import { ApiKey } from "@/models/api-key.model";
-import { hashApiKey } from "@/lib/api-key";
 import connectToDatabase from "@/lib/db/mongodb";
 import { Area } from "@/models/task.model";
+import { trackApiUsage } from "@/lib/route/track-usage";
+import { authenticate } from "@/lib/route/authenticate";
 
 export async function GET(req: Request) {
   try {
     await connectToDatabase();
 
-    const auth = req.headers.get("authorization");
-    const apiKey = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
-
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key required" }, { status: 401 });
-    }
-
-    const keyHash = hashApiKey(apiKey);
-
-    const key = await ApiKey.findOne({
-      keyHash,
-      revoked: false,
-      scopes: { $in: ["mcp:read"] },
-      $or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }],
-    });
-
+    const key = await authenticate(req, "mcp:areas:read");
     if (!key) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const userId = key.userId;
@@ -33,6 +18,12 @@ export async function GET(req: Request) {
     const areas = await Area.find({ userId })
       .select("area note tasks updatedAt")
       .lean();
+
+    await trackApiUsage({
+      apiKeyId: key.id,
+      userId,
+      resource: "api.mcp.context.read",
+    });
 
     return NextResponse.json({
       user: userId,
