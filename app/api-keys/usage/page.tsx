@@ -110,9 +110,11 @@ export default function ApiKeyUsagePage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <LoaderIcon className="h-6 w-6 animate-spin" />
-      </div>
+      <TitleHeader page="API Usage">
+        <div className="flex-center h-[calc(100dvh-4rem)]">
+          <LoaderIcon className="animate-spin" />
+        </div>
+      </TitleHeader>
     );
   }
 

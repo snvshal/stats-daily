@@ -1,9 +1,9 @@
-import { Loader } from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="flex-center h-screen">
-      <Loader className="animate-spin" />
+    <div className="flex-center h-dvh">
+      <LoaderIcon className="animate-spin" />
     </div>
   );
 }
