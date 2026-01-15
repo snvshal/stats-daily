@@ -76,7 +76,12 @@ export default function ApiKeyUsagePage() {
 
     return Array.from(map.entries())
       .map(([resource, count]) => ({
-        resource: resource.split(".").pop() || resource,
+        resource:
+          resource
+            .split(".")
+            .slice(-2)
+            .map((rp) => rp.charAt(0).toUpperCase() + rp.slice(1))
+            .join(" ") || resource,
         fullResource: resource,
         count,
       }))

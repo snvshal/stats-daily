@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SetState } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,7 +26,7 @@ export default function InitializeSD({ userId }: { userId: string }) {
   ];
 
   return (
-    <div className="flex-start box-border size-full flex-col overflow-x-hidden">
+    <ScrollArea className="flex-start box-border size-full flex-col overflow-x-hidden border-r">
       <header className="flex-between h-18 sticky top-0 z-20 w-full border-b bg-background p-4 max-md:pl-20">
         <p className="text-xl opacity-80 max-md:text-lg">
           Initialize StatsDaily
@@ -48,7 +49,7 @@ export default function InitializeSD({ userId }: { userId: string }) {
           />
         ))}
       </main>
-    </div>
+    </ScrollArea>
   );
 }
 
