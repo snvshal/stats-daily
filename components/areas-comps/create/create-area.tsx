@@ -136,7 +136,7 @@ export default function CreateArea({
     <div className="h-full overflow-auto">
       <form
         onSubmit={submitForm}
-        className="flex-between h-full w-full flex-col gap-4 max-sm:h-auto"
+        className="flex-between h-full w-full flex-col gap-4 border-r max-sm:h-auto"
       >
         <div className="flex-start sticky top-0 z-40 w-full flex-col border-b bg-background max-md:pl-14">
           <div className="flex-between w-full p-4">

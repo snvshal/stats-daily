@@ -78,8 +78,8 @@ export async function POST(req: Request) {
     if (!doc) {
       doc = new Achievement({
         userId: key.userId,
-        achievements: [{ text }],
-        note: note?.trim() || undefined,
+        achievements: [{ text: `[MCP] ${text}` }],
+        note: note?.trim() ? `[MCP]\n----\n${note.trim()}\n----` : undefined,
       });
     } else {
       doc.achievements.push({ text: `[MCP] ${text}` });
