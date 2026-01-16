@@ -5,10 +5,8 @@ Stats Daily is a web application designed to help users track their daily tasks,
 ## Table of Contents
 
 - [Features](#features)
+- [MCP & API Access](#mcp--api-access)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
