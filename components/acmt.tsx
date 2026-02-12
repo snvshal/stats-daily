@@ -47,6 +47,7 @@ export default function AchievementForm({ id }: { id: string }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [emptyInputAlert, setEmptyInputAlert] = useState(false);
+  const router = useRouter();
 
   const submitAchievement = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,6 +59,7 @@ export default function AchievementForm({ id }: { id: string }) {
     setLoading(true);
     await saveAchievement(id, input);
     setInput("");
+    router.refresh();
     setLoading(false);
   };
 
@@ -302,6 +304,10 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
     (achievement?.achievements ?? []) as TAchievementTask[],
   );
 
+  useEffect(() => {
+    setAchievements((achievement?.achievements ?? []) as TAchievementTask[]);
+  }, [achievement]);
+
   const handleDelete = async (taskId: string) => {
     setAchievements((prev) => prev.filter((task) => task._id !== taskId));
 
@@ -324,7 +330,7 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
           {[...achievements].reverse()?.map((task, index) => (
             <div
               key={index}
-              className="mb-2 box-border flex h-full gap-2 rounded-lg border p-2"
+              className="mb-2 box-border flex h-full gap-2 rounded-lg border p-2 transition-all duration-200 ease-in-out hover:-translate-y-[1px] hover:bg-muted/50 hover:shadow-sm"
             >
               <div>
                 <span className="flex-center bbn h-8 w-8 rounded-lg">
