@@ -4,12 +4,6 @@ import { TArea, TTask, StatsWithoutDocument, TUser } from "../types";
 import { st } from "../utils";
 import { currentUser } from "../db/stats";
 
-// Utility function to check if an area already exists
-export async function checkForExistingArea(area: string) {
-  const { _id: userId }: TUser = await currentUser();
-  return await Area.findOne({ userId, area });
-}
-
 // Utility function to create a new task
 export async function createNewTask(data: StatsWithoutDocument) {
   return await Area.create(data);
@@ -21,9 +15,13 @@ export function isValidObjectId(id: string) {
 }
 
 // Utility function to check if an area already exists in the database
-export async function checkForDuplicateArea(area: string) {
+export async function checkForDuplicateArea(area: string): Promise<boolean> {
   const { _id: userId }: TUser = await currentUser();
-  return await Area.findOne({ userId, area });
+  const existingArea = await Area.findOne({
+    userId,
+    area: { $regex: new RegExp(area, "i") },
+  });
+  return !!existingArea;
 }
 
 // Utility function to update the area field of a Task document
