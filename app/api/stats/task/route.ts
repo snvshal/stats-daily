@@ -18,7 +18,6 @@ import {
   deleteTaskByTaskId,
   deleteAreaById,
   createNewTask,
-  checkForExistingArea,
 } from "@/lib/route/task-utils";
 import {
   invalidIdResponse,
@@ -47,8 +46,8 @@ export async function POST(request: NextRequest) {
     areaZodSchema.parse(data);
 
     // Check for existing area
-    const prevArea = await checkForExistingArea(data.area);
-    if (prevArea) return duplicateAreaResponse(prevArea.area);
+    const duplicateArea = await checkForDuplicateArea(data.area);
+    if (duplicateArea) return duplicateAreaResponse(data.area);
 
     // Create a new area
     const newArea = await createNewTask(data);
