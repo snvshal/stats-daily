@@ -129,11 +129,12 @@ export function SignUpButton() {
 }
 
 export function PageFooter() {
+  const year = new Date().getFullYear();
   return (
     <footer className="border-t">
       <div className="flex-between mx-auto h-16 w-full max-w-7xl shrink-0 border-x px-4 sm:flex-row md:px-6">
         <p className="text-xs text-muted-foreground">
-          Copyright &copy; 2025 StatsDaily
+          Copyright &copy; {year} StatsDaily
           <span className="max-sm:hidden">
             {" "}
             — Daily Tasks Completion Tracker
