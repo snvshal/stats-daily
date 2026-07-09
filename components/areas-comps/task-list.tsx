@@ -124,7 +124,7 @@ export default function TaskList({ data }: { data: TArea }) {
 
         <ScrollArea className="h-[calc(100%-6rem)] w-full overflow-auto overflow-x-hidden max-sm:h-[calc(100%-7rem)]">
           <AddNewTask
-            areaId={areaId as string}
+            areaId={areaId?.toString() ?? ""}
             addTaskInput={addTaskInput}
             setAddTaskInput={setAddTaskInput}
           />
@@ -148,14 +148,14 @@ export default function TaskList({ data }: { data: TArea }) {
           )}
         </ScrollArea>
         <ShowCompletedTasks
-          areaId={areaId as string}
+          areaId={areaId?.toString() ?? ""}
           completedTasks={completedTasks}
         />
       </div>
       <div className="flex h-full w-1/3 flex-col gap-4 max-lg:hidden max-md:flex max-sm:hidden">
         <CircularProgress progress={progress} ctp={ctp} />
         <div className="bbn box-border h-[calc(100%-10rem)] rounded-lg px-4 py-2">
-          <AreaNote areaId={areaId as string} note={note as string} />
+          <AreaNote areaId={areaId?.toString() ?? ""} note={note as string} />
         </div>
       </div>
     </div>

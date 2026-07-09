@@ -150,7 +150,7 @@ export function DailyNoteCards({ notes }: { notes: TNote[] }) {
     <>
       {notes.map((note) => (
         <Card
-          key={note._id as string}
+          key={note._id?.toString() ?? ""}
           className="group relative h-[200px] cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
           onClick={() => readNote(note)}
           onKeyDown={(e) => {

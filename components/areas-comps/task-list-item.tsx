@@ -114,18 +114,18 @@ export default function TaskListItem(props: TaskListItemsProps) {
     toast("Task deleted", {
       action: {
         label: "Undo",
-        onClick: () => undoDelete(taskItem._id as string),
+        onClick: () => undoDelete(taskItem._id?.toString() ?? ""),
       },
       duration: 5000,
     });
 
     // create per-task timeout
     const timeout = setTimeout(async () => {
-      await deleteTask(areaId, taskItem._id as string);
-      deleteTimers.current.delete(taskItem._id as string);
+      await deleteTask(areaId, taskItem._id?.toString() ?? "");
+      deleteTimers.current.delete(taskItem._id?.toString() ?? "");
     }, 5000);
 
-    deleteTimers.current.set(taskItem._id as string, timeout);
+    deleteTimers.current.set(taskItem._id?.toString() ?? "", timeout);
   };
 
   const undoDelete = (taskId: string) => {
@@ -138,7 +138,7 @@ export default function TaskListItem(props: TaskListItemsProps) {
     // find the backup in removedTasks
     const removed = store
       .getState()
-      .task.removedTasks.find((t) => t.task._id === taskId);
+      .task.removedTasks.find((t) => t.task._id?.toString() === taskId);
     if (!removed) return;
 
     const { task, index } = removed;

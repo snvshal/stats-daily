@@ -10,7 +10,6 @@ import {
   BarChart2Icon,
   BlocksIcon,
   CalendarIcon,
-  KeyIcon,
   MenuIcon,
   NotebookIcon,
   SquarePenIcon,
@@ -147,7 +146,6 @@ export function CreateAreaLink({
     { href: "/notes", text: "Notes", icon: NotebookIcon },
     { href: "/achievements/today", text: "Achievements", icon: TrophyIcon },
     { href: "/countdown", text: "Countdown", icon: CalendarIcon },
-    { href: "/api-keys", text: "API Keys", icon: KeyIcon },
   ];
   return (
     <div className="flex flex-col gap-2">
