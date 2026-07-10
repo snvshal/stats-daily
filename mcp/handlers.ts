@@ -4,7 +4,14 @@ import { Note } from "@/models/note.model";
 import { Achievement } from "@/models/acmt.model";
 import type { TAchievementTask } from "@/lib/types";
 import connectToDatabase from "@/lib/db/mongodb";
-import type { TaskOutput, AreaOutput, NoteOutput, AchievementOutput, MutationResult, AreaListItemOutput } from "@/mcp/schemas";
+import type {
+  TaskOutput,
+  AreaOutput,
+  NoteOutput,
+  AchievementOutput,
+  MutationResult,
+  AreaListItemOutput,
+} from "@/mcp/schemas";
 
 const SCOPE_AREAS_READ = "mcp:areas:read";
 const SCOPE_AREAS_WRITE = "mcp:areas:write";
@@ -80,9 +87,10 @@ type ToolResult<T> = {
 export function createHandlers(userId: string, scopes: string[] | null) {
   async function listAreas(): Promise<ToolResult<AreaListItemOutput[]>> {
     await connectToDatabase();
-    const docs = await Area.find({ userId })
-      .select("area")
-      .lean() as Record<string, unknown>[];
+    const docs = (await Area.find({ userId }).select("area").lean()) as Record<
+      string,
+      unknown
+    >[];
     const output: AreaListItemOutput[] = docs.map((d) => ({
       id: (d._id as { toString(): string }).toString(),
       area: d.area as string,
@@ -95,28 +103,43 @@ export function createHandlers(userId: string, scopes: string[] | null) {
 
   async function getArea(areaId: string): Promise<ToolResult<AreaOutput>> {
     await connectToDatabase();
-    const doc = await Area.findOne({ _id: areaId, userId })
-      .lean() as Record<string, unknown> | null;
+    const doc = (await Area.findOne({ _id: areaId, userId }).lean()) as Record<
+      string,
+      unknown
+    > | null;
     if (!doc)
       return {
         content: [{ type: "text" as const, text: "Area not found" }],
         isError: true,
       };
     const output = toAreaOutput(doc);
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
-  }
-
-  async function createArea(area: string, note?: string): Promise<ToolResult<MutationResult>> {
-    await connectToDatabase();
-    const doc = await Area.create({ userId, area, note });
-    const output: MutationResult = { success: true, message: "Area created", id: doc._id.toString() };
     return {
       content: [{ type: "text" as const, text: JSON.stringify(output) }],
       structuredContent: output,
     };
   }
 
-  async function updateAreaName(areaId: string, name: string): Promise<ToolResult<MutationResult>> {
+  async function createArea(
+    area: string,
+    note?: string,
+  ): Promise<ToolResult<MutationResult>> {
+    await connectToDatabase();
+    const doc = await Area.create({ userId, area, note });
+    const output: MutationResult = {
+      success: true,
+      message: "Area created",
+      id: doc._id.toString(),
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
+  }
+
+  async function updateAreaName(
+    areaId: string,
+    name: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const doc = await Area.findOneAndUpdate(
       { _id: areaId, userId },
@@ -124,14 +147,31 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       { new: true },
     ).select("_id");
     if (!doc) {
-      const output: MutationResult = { success: false, message: "Area not found" };
-      return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true };
+      const output: MutationResult = {
+        success: false,
+        message: "Area not found",
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(output) }],
+        structuredContent: output,
+        isError: true,
+      };
     }
-    const output: MutationResult = { success: true, message: "Area name updated", id: doc._id.toString() };
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    const output: MutationResult = {
+      success: true,
+      message: "Area name updated",
+      id: doc._id.toString(),
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
-  async function updateAreaNote(areaId: string, note: string): Promise<ToolResult<MutationResult>> {
+  async function updateAreaNote(
+    areaId: string,
+    note: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const doc = await Area.findOneAndUpdate(
       { _id: areaId, userId },
@@ -139,11 +179,25 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       { new: true },
     ).select("_id");
     if (!doc) {
-      const output: MutationResult = { success: false, message: "Area not found" };
-      return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true };
+      const output: MutationResult = {
+        success: false,
+        message: "Area not found",
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(output) }],
+        structuredContent: output,
+        isError: true,
+      };
     }
-    const output: MutationResult = { success: true, message: "Area note updated", id: doc._id.toString() };
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    const output: MutationResult = {
+      success: true,
+      message: "Area note updated",
+      id: doc._id.toString(),
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
   async function updateTask(
@@ -169,14 +223,31 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       },
     ).select("_id");
     if (!doc) {
-      const output: MutationResult = { success: false, message: "Task not found" };
-      return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true };
+      const output: MutationResult = {
+        success: false,
+        message: "Task not found",
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(output) }],
+        structuredContent: output,
+        isError: true,
+      };
     }
-    const output: MutationResult = { success: true, message: "Task updated", id: taskId };
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    const output: MutationResult = {
+      success: true,
+      message: "Task updated",
+      id: taskId,
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
-  async function addTask(areaId: string, task: string): Promise<ToolResult<MutationResult>> {
+  async function addTask(
+    areaId: string,
+    task: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const doc = await Area.findOneAndUpdate(
       { _id: areaId, userId },
@@ -184,13 +255,27 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       { new: true },
     ).select("tasks");
     if (!doc) {
-      const output: MutationResult = { success: false, message: "Area not found" };
-      return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true };
+      const output: MutationResult = {
+        success: false,
+        message: "Area not found",
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(output) }],
+        structuredContent: output,
+        isError: true,
+      };
     }
     const tasks = (doc.tasks ?? []) as { _id: { toString(): string } }[];
     const taskId = tasks[tasks.length - 1]._id.toString();
-    const output: MutationResult = { success: true, message: "Task added", id: taskId };
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    const output: MutationResult = {
+      success: true,
+      message: "Task added",
+      id: taskId,
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
   async function getNote(date?: string): Promise<ToolResult<NoteOutput[]>> {
@@ -202,8 +287,9 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       const end = new Date(d.getTime() + 86400000);
       query.createdAt = { $gte: d, $lte: end };
     }
-    const docs = await Note.find(query).sort({ createdAt: -1 })
-      .lean() as Record<string, unknown>[];
+    const docs = (await Note.find(query)
+      .sort({ createdAt: -1 })
+      .lean()) as Record<string, unknown>[];
     const output = docs.map(toNoteOutput);
     return {
       content: [{ type: "text" as const, text: JSON.stringify(output) }],
@@ -211,7 +297,9 @@ export function createHandlers(userId: string, scopes: string[] | null) {
     };
   }
 
-  async function saveNote(content: string): Promise<ToolResult<MutationResult>> {
+  async function saveNote(
+    content: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const now = new Date();
     const start = new Date(now);
@@ -230,27 +318,50 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       doc = await Note.create({ userId, content });
     }
 
-    const output: MutationResult = { success: true, message: "Note saved", id: doc._id.toString() };
+    const output: MutationResult = {
+      success: true,
+      message: "Note saved",
+      id: doc._id.toString(),
+    };
     return {
       content: [{ type: "text" as const, text: JSON.stringify(output) }],
       structuredContent: output,
     };
   }
 
-  async function updateNote(id: string, content: string): Promise<ToolResult<MutationResult>> {
+  async function updateNote(
+    id: string,
+    content: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const doc = await Note.findOne({ _id: id, userId });
     if (!doc) {
-      const output: MutationResult = { success: false, message: "Note not found" };
-      return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true };
+      const output: MutationResult = {
+        success: false,
+        message: "Note not found",
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(output) }],
+        structuredContent: output,
+        isError: true,
+      };
     }
     doc.content = doc.content + "\n\n" + content;
     await doc.save();
-    const output: MutationResult = { success: true, message: "Note updated", id: doc._id.toString() };
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    const output: MutationResult = {
+      success: true,
+      message: "Note updated",
+      id: doc._id.toString(),
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
-  async function getAchievements(date?: string): Promise<ToolResult<AchievementOutput[]>> {
+  async function getAchievements(
+    date?: string,
+  ): Promise<ToolResult<AchievementOutput[]>> {
     await connectToDatabase();
     const query: Record<string, unknown> = { userId };
     if (date) {
@@ -259,13 +370,20 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       const end = new Date(d.getTime() + 86400000);
       query.createdAt = { $gte: d, $lte: end };
     }
-    const docs = await Achievement.find(query).sort({ createdAt: -1 })
-      .lean() as Record<string, unknown>[];
+    const docs = (await Achievement.find(query)
+      .sort({ createdAt: -1 })
+      .lean()) as Record<string, unknown>[];
     const output = docs.map(toAchievementOutput);
-    return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(output) }],
+      structuredContent: output,
+    };
   }
 
-  async function saveAchievement(text: string, note?: string): Promise<ToolResult<MutationResult>> {
+  async function saveAchievement(
+    text: string,
+    note?: string,
+  ): Promise<ToolResult<MutationResult>> {
     await connectToDatabase();
     const now = new Date();
     const start = new Date(now);
@@ -289,7 +407,11 @@ export function createHandlers(userId: string, scopes: string[] | null) {
       await doc.save();
     }
 
-    const output: MutationResult = { success: true, message: "Achievement saved", id: doc._id.toString() };
+    const output: MutationResult = {
+      success: true,
+      message: "Achievement saved",
+      id: doc._id.toString(),
+    };
     return {
       content: [{ type: "text" as const, text: JSON.stringify(output) }],
       structuredContent: output,

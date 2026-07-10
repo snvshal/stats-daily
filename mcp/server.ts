@@ -2,7 +2,13 @@ import { z } from "zod-v4/v4";
 import { McpServer } from "@modelcontextprotocol/server";
 import { createHandlers } from "./handlers";
 import type { McpRequestContext } from "@modelcontextprotocol/server";
-import { areaSchema, areaListItemSchema, noteSchema, achievementSchema, mutationResultSchema } from "./schemas";
+import {
+  areaSchema,
+  areaListItemSchema,
+  noteSchema,
+  achievementSchema,
+  mutationResultSchema,
+} from "./schemas";
 
 function getUserId(ctx: McpRequestContext): string | null {
   return (
@@ -49,7 +55,10 @@ export function createFactory() {
       "create_area",
       {
         description: "Create a new area/topic",
-        inputSchema: z.object({ area: z.string(), note: z.string().optional() }),
+        inputSchema: z.object({
+          area: z.string(),
+          note: z.string().optional(),
+        }),
         outputSchema: mutationResultSchema,
       },
       async (args) => h.createArea(args.area, args.note),
@@ -119,7 +128,8 @@ export function createFactory() {
     server.registerTool(
       "save_note",
       {
-        description: "Save a daily note (supports HTML content) — replaces any existing note for today",
+        description:
+          "Save a daily note (supports HTML content) — replaces any existing note for today",
         inputSchema: z.object({ content: z.string() }),
         outputSchema: mutationResultSchema,
       },
@@ -129,7 +139,8 @@ export function createFactory() {
     server.registerTool(
       "update_note",
       {
-        description: "Append content to an existing note by ID (supports HTML content)",
+        description:
+          "Append content to an existing note by ID (supports HTML content)",
         inputSchema: z.object({ id: z.string(), content: z.string() }),
         outputSchema: mutationResultSchema,
       },
@@ -150,7 +161,10 @@ export function createFactory() {
       "save_achievement",
       {
         description: "Save a new achievement for today",
-        inputSchema: z.object({ text: z.string(), note: z.string().optional() }),
+        inputSchema: z.object({
+          text: z.string(),
+          note: z.string().optional(),
+        }),
         outputSchema: mutationResultSchema,
       },
       async (args) => h.saveAchievement(args.text, args.note),

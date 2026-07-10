@@ -264,22 +264,30 @@ export function renderConsentPage(params: {
       <div class="permissions-section">
         <div class="permissions-label">Permissions</div>
         <ul class="permissions-list">
-          ${params.scopes.map((s) => `
+          ${params.scopes
+            .map(
+              (s) => `
             <li class="permission-item">
               <svg class="permission-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6.5 9 17.5 4 12.5"></polyline>
               </svg>
               <span>${escapeHtml(SCOPE_LABELS[s] ?? s)}</span>
             </li>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </ul>
       </div>
 
-      ${params.userEmail ? `
+      ${
+        params.userEmail
+          ? `
         <div class="user-info">
           Signed in as <strong>${escapeHtml(params.userEmail)}</strong>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
 
       <form method="post" action="${escapeHtml(params.postUrl)}" style="display: contents;">
         <input type="hidden" name="consent_token" value="${params.consentToken}">
