@@ -38,7 +38,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="animate-gradient-xy absolute inset-0 z-0 bg-gradient-to-r from-[#000000] to-[#000000] opacity-20" />
-          <div className="animate-gradient-xy absolute inset-0 z-0 bg-[url('/stats.webp')] bg-cover bg-center opacity-10" />
+          <div className="animate-gradient-xy absolute inset-0 z-0 bg-[url('/hero.png')] bg-cover bg-center opacity-10" />
         </section>
 
         <SectionComponent
@@ -71,9 +71,18 @@ export default function HomePage() {
         />
 
         <SectionComponent
-          title="AI Agent Ready — Connect Any MCP Client"
+          title="Connect Any MCP Client to Your Tasks, Notes & Achievements"
           description="Access your tasks, notes, and achievements through any MCP-compatible AI assistant. Secure OAuth 2.1 + PKCE authorization keeps your data safe."
           image="/mcp-oauth.png"
+          action={
+            <Link
+              href="/mcp-guide"
+              className="inline-flex items-center gap-1 text-sm font-medium underline decoration-1 underline-offset-4 transition-all hover:decoration-2"
+              prefetch={false}
+            >
+              View Guide ↗
+            </Link>
+          }
         />
 
         {/* Call to Action */}
@@ -164,10 +173,12 @@ function SectionComponent({
   title,
   description,
   image,
+  action,
 }: {
   title: string;
   description: string;
   image: string;
+  action?: React.ReactNode;
 }) {
   return (
     <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-20">
@@ -179,6 +190,7 @@ function SectionComponent({
           <p className="max-w-[600px] text-muted-foreground md:text-xl">
             {description}
           </p>
+          {action && <div className="pt-1">{action}</div>}
         </div>
         <div className="flex-center size-full">
           <div
