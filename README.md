@@ -44,25 +44,16 @@ Stats Daily implements a [Model Context Protocol](https://modelcontextprotocol.i
 | `/api/mcp/token`                          | POST   | Exchange code for tokens, refresh tokens |
 | `/api/mcp`                                | POST   | MCP tool execution                       |
 
-### Configuring Claude Desktop
+### Connecting MCP Clients
 
-Add this to your `claude_desktop_config.json`:
+Clients that support **OAuth 2.1** (Claude Desktop, Cursor, etc.) connect directly using the MCP server URL:
 
-```json
-{
-  "mcpServers": {
-    "stats-daily": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/inspector"],
-      "env": {
-        "MCP_SERVER_URL": "http://localhost:3000/api/mcp"
-      }
-    }
-  }
-}
+```
+Name: StatsDaily
+MCP Server URL: http://localhost:3000/api/mcp
 ```
 
-> **Note:** The recommended way to connect is via the **remote MCP URL** directly in clients that support OAuth. The `@snvshal/sndo` npm package provides a stdio alternative for clients without OAuth support.
+Your client will redirect you to sign in and approve the requested permissions when connecting.
 
 ## Scopes & Permissions
 
@@ -111,10 +102,9 @@ mcp:areas:read mcp:notes:read mcp:achievements:read
 | `update_area_note` | `mcp:areas:write`        | Update area note                      |
 | `update_task`      | `mcp:areas:write`        | Update a task                         |
 | `add_task`         | `mcp:areas:write`        | Add a new task                        |
-| `delete_task`      | `mcp:areas:write`        | Delete a task                         |
-| `delete_area`      | `mcp:areas:write`        | Delete an area and all tasks          |
 | `get_note`         | `mcp:notes:read`         | Get daily notes (optionally by date)  |
 | `save_note`        | `mcp:notes:write`        | Save a daily note                     |
+| `update_note`      | `mcp:notes:write`        | Append content to an existing note    |
 | `get_achievements` | `mcp:achievements:read`  | Get achievements (optionally by date) |
 | `save_achievement` | `mcp:achievements:write` | Save a new achievement                |
 

@@ -20,11 +20,13 @@ export const metadata: Metadata = {
       "Connect StatsDaily to any MCP-compatible AI client. Learn about available tools, permissions, and how to set up the connection.",
     siteName: "StatsDaily",
     type: "website",
+    images: [{ url: "/mcp-oauth.png" }],
   },
   twitter: {
     title: "MCP Guide — StatsDaily",
     description:
       "Connect StatsDaily to any MCP-compatible AI client. Learn about available tools, permissions, and how to set up the connection.",
+    images: ["/mcp-oauth.png"],
   },
 };
 
