@@ -79,7 +79,6 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.13",
     "@types/node": "^20",
-    "@types/node-cron": "^3.0.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-redux": "^7.1.33",
