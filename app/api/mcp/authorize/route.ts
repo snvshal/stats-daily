@@ -7,6 +7,7 @@ import { ClientRegistration } from "@/models/client-registration.model";
 import { ConsentChallenge } from "@/models/consent-challenge.model";
 import { User } from "@/models/user.model";
 import { ALLOWED_SCOPES } from "@/lib/route/constants";
+import { renderConsentPage } from "@/lib/oauth/consent-page";
 
 export async function GET(request: NextRequest) {
   try {
@@ -92,34 +93,13 @@ export async function GET(request: NextRequest) {
     if (state) denyUrl.searchParams.set("state", state);
 
     return new NextResponse(
-      `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Authorize Application</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:480px;margin:40px auto;padding:0 16px;color:#1a1a1a}
-  h1{font-size:1.4rem;margin-bottom:4px}
-  .client{color:#666;font-size:.9rem;margin-bottom:24px}
-  ul{padding-left:20px;margin-bottom:24px;line-height:1.6}
-  .actions{display:flex;gap:12px}
-  .btn{flex:1;padding:10px 0;border-radius:8px;border:none;font-size:1rem;cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
-  .btn-primary{background:#0066cc;color:#fff}
-  .btn-primary:hover{background:#0052a3}
-  .btn-secondary{background:#e5e5e5;color:#333}
-  .btn-secondary:hover{background:#ccc}
-</style>
-</head>
-<body>
-  <h1>Authorize access</h1>
-  <p class="client">${escapeHtml(registration.clientName ?? "MCP Client")} wants to:</p>
-  <ul>${requestedScopes.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ul>
-  <form method="post" action="${escapeHtml(postUrl.toString())}" style="display:flex;gap:12px">
-    <input type="hidden" name="consent_token" value="${consentToken}">
-    <a href="${escapeHtml(denyUrl.toString())}" class="btn btn-secondary">Deny</a>
-    <button type="submit" class="btn btn-primary">Approve</button>
-  </form>
-</body>
-</html>`,
+      renderConsentPage({
+        clientName: registration.clientName ?? "MCP Client",
+        scopes: requestedScopes,
+        postUrl: postUrl.toString(),
+        consentToken,
+        denyUrl: denyUrl.toString(),
+      }),
       { headers: { "Content-Type": "text/html" } },
     );
   } catch (err) {
@@ -185,13 +165,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
