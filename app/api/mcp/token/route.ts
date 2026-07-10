@@ -6,20 +6,35 @@ import { ClientRegistration } from "@/models/client-registration.model";
 import {
   createAccessToken,
   rotateRefreshToken,
+  lookupRefreshToken,
   ACCESS_TOKEN_TTL_SECONDS,
 } from "@/mcp/oauth";
 
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    const body = await request.formData();
-    const grantType = body.get("grant_type") as string | null;
+
+    const ct = request.headers.get("content-type") ?? "";
+    let body: Record<string, string>;
+    if (ct.includes("application/json")) {
+      body = (await request.json()) as Record<string, string>;
+    } else {
+      const fd = await request.formData();
+      body = Object.fromEntries(
+        Array.from(fd.entries(), ([k, v]) => [
+          k,
+          typeof v === "string" ? v : v.name,
+        ]),
+      );
+    }
+
+    const grantType = body.grant_type ?? null;
 
     if (grantType === "authorization_code") {
-      const code = body.get("code") as string | null;
-      const codeVerifier = body.get("code_verifier") as string | null;
-      const redirectUri = body.get("redirect_uri") as string | null;
-      const clientId = body.get("client_id") as string | null;
+      const code = body.code ?? null;
+      const codeVerifier = body.code_verifier ?? null;
+      const redirectUri = body.redirect_uri ?? null;
+      const clientId = body.client_id ?? null;
 
       if (!code || !codeVerifier) {
         return NextResponse.json(
@@ -66,17 +81,129 @@ export async function POST(request: NextRequest) {
       const registration = await ClientRegistration.findOne({
         clientId: authCode.clientId,
       });
-      if (registration) {
-        const method = registration.tokenEndpointAuthMethod;
-        if (method !== "none") {
+      if (!registration) {
+        return NextResponse.json(
+          { error: "invalid_client", error_description: "Unknown client" },
+          { status: 400 },
+        );
+      }
+
+      const authMethod = registration.tokenEndpointAuthMethod ?? "none";
+      if (authMethod === "client_secret_post") {
+        if (!clientId || clientId !== authCode.clientId) {
           return NextResponse.json(
             {
               error: "invalid_client",
-              error_description: "Unsupported token_endpoint_auth_method",
+              error_description: "Invalid client credentials",
             },
             { status: 400 },
           );
         }
+        const secret = body.client_secret ?? null;
+        if (
+          !secret ||
+          !registration.clientSecret ||
+          Buffer.from(secret).length !==
+            Buffer.from(registration.clientSecret).length
+        ) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
+            { status: 400 },
+          );
+        }
+        if (
+          !crypto.timingSafeEqual(
+            Buffer.from(secret),
+            Buffer.from(registration.clientSecret),
+          )
+        ) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
+            { status: 400 },
+          );
+        }
+      } else if (authMethod === "client_secret_basic") {
+        const authHeader = request.headers.get("authorization") ?? "";
+        if (!authHeader.startsWith("Basic ")) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Basic authentication required",
+            },
+            { status: 400 },
+          );
+        }
+        let headerClientId: string;
+        let secret: string;
+        try {
+          const decoded = Buffer.from(
+            authHeader.slice(6),
+            "base64url",
+          ).toString();
+          const colon = decoded.indexOf(":");
+          headerClientId = decodeURIComponent(
+            colon >= 0 ? decoded.slice(0, colon) : decoded,
+          );
+          secret = colon >= 0 ? decoded.slice(colon + 1) : decoded;
+        } catch {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client credentials",
+            },
+            { status: 400 },
+          );
+        }
+        if (headerClientId !== authCode.clientId) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client credentials",
+            },
+            { status: 400 },
+          );
+        }
+        if (
+          !registration.clientSecret ||
+          Buffer.from(secret).length !==
+            Buffer.from(registration.clientSecret).length
+        ) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
+            { status: 400 },
+          );
+        }
+        if (
+          !crypto.timingSafeEqual(
+            Buffer.from(secret),
+            Buffer.from(registration.clientSecret),
+          )
+        ) {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
+            { status: 400 },
+          );
+        }
+      } else if (authMethod !== "none") {
+        return NextResponse.json(
+          {
+            error: "invalid_client",
+            error_description: "Unsupported token_endpoint_auth_method",
+          },
+          { status: 400 },
+        );
       }
 
       const expectedChallenge = crypto
@@ -84,6 +211,18 @@ export async function POST(request: NextRequest) {
         .update(codeVerifier)
         .digest("base64url");
 
+      if (
+        Buffer.from(expectedChallenge).length !==
+        Buffer.from(authCode.codeChallenge).length
+      ) {
+        return NextResponse.json(
+          {
+            error: "invalid_grant",
+            error_description: "PKCE verification failed",
+          },
+          { status: 400 },
+        );
+      }
       if (
         !crypto.timingSafeEqual(
           Buffer.from(expectedChallenge),
@@ -115,7 +254,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (grantType === "refresh_token") {
-      const refreshToken = body.get("refresh_token") as string | null;
+      const refreshToken = body.refresh_token ?? null;
       if (!refreshToken) {
         return NextResponse.json(
           {
@@ -126,14 +265,163 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const tokens = await rotateRefreshToken(refreshToken);
-      if (!tokens) {
+      const tokenInfo = await lookupRefreshToken(refreshToken);
+      if (!tokenInfo) {
         return NextResponse.json(
           {
             error: "invalid_grant",
             error_description: "Invalid or expired refresh token",
           },
           { status: 400 },
+        );
+      }
+
+      const clientId = body.client_id ?? tokenInfo.clientId ?? null;
+      if (tokenInfo.clientId && clientId !== tokenInfo.clientId) {
+        return NextResponse.json(
+          { error: "invalid_grant", error_description: "client_id mismatch" },
+          { status: 400 },
+        );
+      }
+
+      if (tokenInfo.clientId) {
+        const registration = await ClientRegistration.findOne({
+          clientId: tokenInfo.clientId,
+        });
+        if (!registration) {
+          return NextResponse.json(
+            { error: "invalid_client", error_description: "Unknown client" },
+            { status: 400 },
+          );
+        }
+
+        const authMethod = registration.tokenEndpointAuthMethod ?? "none";
+        if (authMethod === "client_secret_post") {
+          if (!clientId || clientId !== tokenInfo.clientId) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
+              { status: 400 },
+            );
+          }
+          const secret = body.client_secret ?? null;
+          if (
+            !secret ||
+            !registration.clientSecret ||
+            Buffer.from(secret).length !==
+              Buffer.from(registration.clientSecret).length
+          ) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
+              { status: 400 },
+            );
+          }
+          if (
+            !crypto.timingSafeEqual(
+              Buffer.from(secret),
+              Buffer.from(registration.clientSecret),
+            )
+          ) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
+              { status: 400 },
+            );
+          }
+        } else if (authMethod === "client_secret_basic") {
+          const authHeader = request.headers.get("authorization") ?? "";
+          if (!authHeader.startsWith("Basic ")) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Basic authentication required",
+              },
+              { status: 400 },
+            );
+          }
+          let headerClientId: string;
+          let secret: string;
+          try {
+            const decoded = Buffer.from(
+              authHeader.slice(6),
+              "base64url",
+            ).toString();
+            const colon = decoded.indexOf(":");
+            headerClientId = decodeURIComponent(
+              colon >= 0 ? decoded.slice(0, colon) : decoded,
+            );
+            secret = colon >= 0 ? decoded.slice(colon + 1) : decoded;
+          } catch {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
+              { status: 400 },
+            );
+          }
+          if (headerClientId !== tokenInfo.clientId) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
+              { status: 400 },
+            );
+          }
+          if (
+            !registration.clientSecret ||
+            Buffer.from(secret).length !==
+              Buffer.from(registration.clientSecret).length
+          ) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
+              { status: 400 },
+            );
+          }
+          if (
+            !crypto.timingSafeEqual(
+              Buffer.from(secret),
+              Buffer.from(registration.clientSecret),
+            )
+          ) {
+            return NextResponse.json(
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
+              { status: 400 },
+            );
+          }
+        } else if (authMethod !== "none") {
+          return NextResponse.json(
+            {
+              error: "invalid_client",
+              error_description: "Unsupported token_endpoint_auth_method",
+            },
+            { status: 400 },
+          );
+        }
+      }
+
+      const tokens = await rotateRefreshToken(refreshToken);
+      if (!tokens) {
+        return NextResponse.json(
+          {
+            error: "server_error",
+            error_description: "Failed to rotate refresh token",
+          },
+          { status: 500 },
         );
       }
 

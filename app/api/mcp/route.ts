@@ -6,6 +6,7 @@ import {
 import { validateAccessToken } from "@/mcp/oauth";
 import { toAuthInfo } from "@/mcp/types";
 import { createFactory } from "@/mcp/server";
+import { getOAuthBaseUrl } from "@/lib/oauth/base-url";
 
 const handler = createMcpHandler(createFactory(), { legacy: "stateless" });
 
@@ -24,9 +25,20 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
-    const metaUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+    const metaUrl = getOAuthBaseUrl(request);
     const allowedHosts = [
-      new URL(metaUrl).host,
+      ...(process.env.MCP_BASE_URL
+        ? [new URL(process.env.MCP_BASE_URL).host]
+        : []),
+      ...(process.env.NEXTAUTH_URL
+        ? [new URL(process.env.NEXTAUTH_URL).host]
+        : []),
+      ...(process.env.MCP_ALLOWED_HOSTS
+        ? process.env.MCP_ALLOWED_HOSTS.split(",")
+            .map((h) => h.trim())
+            .filter(Boolean)
+        : []),
+      ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
       "localhost",
       "127.0.0.1",
       "[::1]",

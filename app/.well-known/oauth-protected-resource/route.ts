@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ALLOWED_SCOPES } from "@/lib/route/constants";
+import { getOAuthBaseUrl } from "@/lib/oauth/base-url";
 
-export async function GET() {
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+export async function GET(request: NextRequest) {
+  const baseUrl = getOAuthBaseUrl(request);
 
   return NextResponse.json({
     resource: `${baseUrl}/api/mcp`,
