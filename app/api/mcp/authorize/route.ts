@@ -8,6 +8,7 @@ import { ConsentChallenge } from "@/models/consent-challenge.model";
 import { User } from "@/models/user.model";
 import { ALLOWED_SCOPES } from "@/lib/route/constants";
 import { renderConsentPage } from "@/lib/oauth/consent-page";
+import { getOAuthBaseUrl } from "@/lib/oauth/base-url";
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     if (!session?.user?.email) {
       const params = new URLSearchParams(searchParams);
       const callbackUrl = `/api/mcp/authorize?${params.toString()}`;
-      const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+      const baseUrl = getOAuthBaseUrl(request);
       const signInUrl = new URL("/api/auth/signin", baseUrl);
       signInUrl.searchParams.set("callbackUrl", callbackUrl);
       return NextResponse.redirect(signInUrl);
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
     redirectUrl.searchParams.set("code", code);
     if (challenge.state) redirectUrl.searchParams.set("state", challenge.state);
 
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(redirectUrl, { status: 303 });
   } catch (err) {
     console.error("[MCP_AUTHORIZE_ERROR]", err);
     return NextResponse.json(

@@ -49,6 +49,22 @@ export async function createAccessToken(
   return { accessToken, refreshToken };
 }
 
+export async function lookupRefreshToken(
+  rawRefreshToken: string,
+): Promise<{ clientId?: string } | null> {
+  await connectToDatabase();
+
+  const tokenHash = hashToken(rawRefreshToken);
+  const doc = await OAuthToken.findOne({
+    tokenHash,
+    type: "refresh",
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (!doc) return null;
+  return { clientId: doc.clientId };
+}
+
 export async function validateAccessToken(
   rawToken: string,
 ): Promise<TOAuthToken | null> {

@@ -48,6 +48,25 @@ export async function POST(request: NextRequest) {
     const tokenEndpointAuthMethod = body.token_endpoint_auth_method;
     const scope = body.scope;
 
+    const SUPPORTED_AUTH_METHODS = [
+      "none",
+      "client_secret_post",
+      "client_secret_basic",
+    ];
+
+    if (
+      tokenEndpointAuthMethod &&
+      !SUPPORTED_AUTH_METHODS.includes(tokenEndpointAuthMethod)
+    ) {
+      return NextResponse.json(
+        {
+          error: "invalid_client_metadata",
+          error_description: `Unsupported token_endpoint_auth_method. Supported: ${SUPPORTED_AUTH_METHODS.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+
     if (
       !redirectUris ||
       !Array.isArray(redirectUris) ||
@@ -64,7 +83,21 @@ export async function POST(request: NextRequest) {
 
     for (const uri of redirectUris) {
       try {
-        new URL(uri);
+        const parsed = new URL(uri);
+        if (
+          parsed.protocol !== "https:" &&
+          parsed.hostname !== "localhost" &&
+          parsed.hostname !== "127.0.0.1" &&
+          parsed.hostname !== "[::1]"
+        ) {
+          return NextResponse.json(
+            {
+              error: "invalid_client_metadata",
+              error_description: "redirect_uri must be HTTPS (except localhost)",
+            },
+            { status: 400 },
+          );
+        }
       } catch {
         return NextResponse.json(
           {
