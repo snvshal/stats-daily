@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const publicRoutes = ["/", "/countdown"];
+  const publicRoutes = ["/", "/countdown", "/mcp-guide"];
   const authRoutes = ["/sign-in"];
 
   const isPublicRoute = publicRoutes.includes(url);

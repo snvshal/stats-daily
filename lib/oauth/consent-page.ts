@@ -1,9 +1,19 @@
+const SCOPE_LABELS: Record<string, string> = {
+  "mcp:areas:read": "Read your areas and tasks",
+  "mcp:areas:write": "Create and update areas and tasks",
+  "mcp:notes:read": "Read your daily notes",
+  "mcp:notes:write": "Save and update daily notes",
+  "mcp:achievements:read": "Read your achievements",
+  "mcp:achievements:write": "Save achievements",
+};
+
 export function renderConsentPage(params: {
   clientName: string;
   scopes: string[];
   postUrl: string;
   consentToken: string;
   denyUrl: string;
+  userEmail?: string;
 }): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -13,154 +23,280 @@ export function renderConsentPage(params: {
 <title>Authorize — StatsDaily</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --border: 240 5.9% 90%;
-    --radius: 0.5rem;
+    --bg: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border: #e5e7eb;
+    --accent: #000000;
+    --accent-hover: #333333;
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --success-text: #047857;
   }
+
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
-      --card: 240 10% 3.9%;
-      --card-foreground: 0 0% 98%;
-      --muted: 240 3.7% 15.9%;
-      --muted-foreground: 240 5% 64.9%;
-      --primary: 0 0% 98%;
-      --primary-foreground: 240 5.9% 10%;
-      --secondary: 240 3.7% 15.9%;
-      --secondary-foreground: 0 0% 98%;
-      --border: 240 3.7% 15.9%;
+      --bg: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border: #2d2d2d;
+      --accent: #ffffff;
+      --accent-hover: #e0e0e0;
+      --success: #10b981;
+      --success-bg: #064e3b;
+      --success-text: #6ee7b7;
     }
   }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{
-    font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;
-    background:hsl(var(--background));
-    color:hsl(var(--foreground));
-    min-height:100dvh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:16px;
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
-  .card{
-    background:hsl(var(--card));
-    border:1px solid hsl(var(--border));
-    border-radius:1rem;
-    box-shadow:0 4px 6px -1px rgb(99 102 241 / 0.25);
-    padding:32px;
-    width:100%;
-    max-width:420px;
+
+  html, body {
+    width: 100%;
+    height: 100%;
   }
-  .logo{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    margin-bottom:24px;
+
+  body {
+    font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100dvh;
   }
-  .logo-icon{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:36px;
-    height:36px;
-    border-radius:var(--radius);
-    font-size:1.1rem;
-    font-weight:700;
-    border:1px solid hsl(var(--border));
+
+  .container {
+    width: 100%;
+    max-width: 480px;
   }
-  .logo-text{
-    font-size:1.25rem;
-    font-weight:700;
+
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px 32px;
   }
-  h1{
-    text-align:center;
-    font-size:1.15rem;
-    font-weight:600;
-    margin-bottom:4px;
+
+  .header {
+    margin-bottom: 32px;
   }
-  .client{
-    text-align:center;
-    font-size:.85rem;
-    color:hsl(var(--muted-foreground));
-    margin-bottom:20px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
   }
-  ul{
-    list-style:none;
-    padding:0;
-    margin-bottom:24px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-sizing: border-box;
   }
-  li{
-    font-size:.9rem;
-    padding:8px 12px;
-    background:hsl(var(--muted));
-    border-radius:calc(var(--radius) - 2px);
-    font-family:monospace;
-    font-size:.82rem;
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
   }
-  .actions{
-    display:flex;
-    gap:10px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
   }
-  .btn{
-    flex:1;
-    padding:10px 0;
-    border-radius:var(--radius);
-    border:1px solid transparent;
-    font-size:.9rem;
-    font-weight:500;
-    cursor:pointer;
-    text-align:center;
-    text-decoration:none;
-    display:inline-block;
-    transition:opacity .15s;
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    line-height: 1.5;
   }
-  .btn:active{opacity:.8}
-  .btn-primary{
-    background:hsl(var(--primary));
-    color:hsl(var(--primary-foreground));
+
+  .permissions-section {
+    margin-bottom: 32px;
   }
-  .btn-primary:hover{opacity:.9}
-  .btn-secondary{
-    background:transparent;
-    border-color:hsl(var(--border));
-    color:hsl(var(--foreground));
+
+  .permissions-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
   }
-  .btn-secondary:hover{background:hsl(var(--secondary))}
+
+  .permissions-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .permission-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  .permission-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--success);
+  }
+
+  .user-info {
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      padding: 32px 24px;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo">
-      <span class="logo-icon">SD</span>
-      <span class="logo-text">StatsDaily</span>
-    </div>
-    <h1>Authorize access</h1>
-    <p class="client">${escapeHtml(params.clientName)} wants to:</p>
-    <ul>${params.scopes.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ul>
-    <form method="post" action="${escapeHtml(params.postUrl)}">
-      <input type="hidden" name="consent_token" value="${params.consentToken}">
-      <div class="actions">
-        <a href="${escapeHtml(params.denyUrl)}" class="btn btn-secondary">Deny</a>
-        <button type="submit" class="btn btn-primary">Approve</button>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="logo">
+          <code class="logo-icon">SD</code>
+          <span class="logo-text">StatsDaily</span>
+        </div>
+        <h1>Authorize access</h1>
+        <p class="subtitle">${escapeHtml(params.clientName)} needs permission to access your account</p>
       </div>
-    </form>
+
+      <div class="permissions-section">
+        <div class="permissions-label">Permissions</div>
+        <ul class="permissions-list">
+          ${params.scopes
+            .map(
+              (s) => `
+            <li class="permission-item">
+              <svg class="permission-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6.5 9 17.5 4 12.5"></polyline>
+              </svg>
+              <span>${escapeHtml(SCOPE_LABELS[s] ?? s)}</span>
+            </li>
+          `,
+            )
+            .join("")}
+        </ul>
+      </div>
+
+      ${
+        params.userEmail
+          ? `
+        <div class="user-info">
+          Signed in as <strong>${escapeHtml(params.userEmail)}</strong>
+        </div>
+      `
+          : ""
+      }
+
+      <form method="post" action="${escapeHtml(params.postUrl)}" style="display: contents;">
+        <input type="hidden" name="consent_token" value="${params.consentToken}">
+        <div class="actions">
+          <a href="${escapeHtml(params.denyUrl)}" class="btn btn-secondary">Deny</a>
+          <button type="submit" class="btn btn-primary">Approve</button>
+        </div>
+      </form>
+    </div>
   </div>
 </body>
 </html>`;

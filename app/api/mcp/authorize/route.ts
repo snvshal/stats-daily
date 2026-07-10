@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
         postUrl: postUrl.toString(),
         consentToken,
         denyUrl: denyUrl.toString(),
+        userEmail: session.user.email,
       }),
       { headers: { "Content-Type": "text/html" } },
     );
