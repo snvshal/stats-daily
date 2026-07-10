@@ -93,7 +93,8 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             {
               error: "invalid_client_metadata",
-              error_description: "redirect_uri must be HTTPS (except localhost)",
+              error_description:
+                "redirect_uri must be HTTPS (except localhost)",
             },
             { status: 400 },
           );

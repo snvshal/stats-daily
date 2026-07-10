@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
     } else {
       const fd = await request.formData();
       body = Object.fromEntries(
-        Array.from(fd.entries(), ([k, v]) => [k, typeof v === "string" ? v : v.name]),
+        Array.from(fd.entries(), ([k, v]) => [
+          k,
+          typeof v === "string" ? v : v.name,
+        ]),
       );
     }
 
@@ -89,7 +92,10 @@ export async function POST(request: NextRequest) {
       if (authMethod === "client_secret_post") {
         if (!clientId || clientId !== authCode.clientId) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client credentials" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client credentials",
+            },
             { status: 400 },
           );
         }
@@ -101,7 +107,10 @@ export async function POST(request: NextRequest) {
             Buffer.from(registration.clientSecret).length
         ) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client secret" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
             { status: 400 },
           );
         }
@@ -112,7 +121,10 @@ export async function POST(request: NextRequest) {
           )
         ) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client secret" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
             { status: 400 },
           );
         }
@@ -120,26 +132,40 @@ export async function POST(request: NextRequest) {
         const authHeader = request.headers.get("authorization") ?? "";
         if (!authHeader.startsWith("Basic ")) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Basic authentication required" },
+            {
+              error: "invalid_client",
+              error_description: "Basic authentication required",
+            },
             { status: 400 },
           );
         }
         let headerClientId: string;
         let secret: string;
         try {
-          const decoded = Buffer.from(authHeader.slice(6), "base64url").toString();
+          const decoded = Buffer.from(
+            authHeader.slice(6),
+            "base64url",
+          ).toString();
           const colon = decoded.indexOf(":");
-          headerClientId = decodeURIComponent(colon >= 0 ? decoded.slice(0, colon) : decoded);
+          headerClientId = decodeURIComponent(
+            colon >= 0 ? decoded.slice(0, colon) : decoded,
+          );
           secret = colon >= 0 ? decoded.slice(colon + 1) : decoded;
         } catch {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client credentials" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client credentials",
+            },
             { status: 400 },
           );
         }
         if (headerClientId !== authCode.clientId) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client credentials" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client credentials",
+            },
             { status: 400 },
           );
         }
@@ -149,7 +175,10 @@ export async function POST(request: NextRequest) {
             Buffer.from(registration.clientSecret).length
         ) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client secret" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
             { status: 400 },
           );
         }
@@ -160,7 +189,10 @@ export async function POST(request: NextRequest) {
           )
         ) {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Invalid client secret" },
+            {
+              error: "invalid_client",
+              error_description: "Invalid client secret",
+            },
             { status: 400 },
           );
         }
@@ -225,7 +257,10 @@ export async function POST(request: NextRequest) {
       const refreshToken = body.refresh_token ?? null;
       if (!refreshToken) {
         return NextResponse.json(
-          { error: "invalid_grant", error_description: "Missing refresh_token" },
+          {
+            error: "invalid_grant",
+            error_description: "Missing refresh_token",
+          },
           { status: 400 },
         );
       }
@@ -233,7 +268,10 @@ export async function POST(request: NextRequest) {
       const tokenInfo = await lookupRefreshToken(refreshToken);
       if (!tokenInfo) {
         return NextResponse.json(
-          { error: "invalid_grant", error_description: "Invalid or expired refresh token" },
+          {
+            error: "invalid_grant",
+            error_description: "Invalid or expired refresh token",
+          },
           { status: 400 },
         );
       }
@@ -261,7 +299,10 @@ export async function POST(request: NextRequest) {
         if (authMethod === "client_secret_post") {
           if (!clientId || clientId !== tokenInfo.clientId) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client credentials" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
               { status: 400 },
             );
           }
@@ -273,7 +314,10 @@ export async function POST(request: NextRequest) {
               Buffer.from(registration.clientSecret).length
           ) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client secret" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
               { status: 400 },
             );
           }
@@ -284,7 +328,10 @@ export async function POST(request: NextRequest) {
             )
           ) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client secret" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
               { status: 400 },
             );
           }
@@ -292,26 +339,40 @@ export async function POST(request: NextRequest) {
           const authHeader = request.headers.get("authorization") ?? "";
           if (!authHeader.startsWith("Basic ")) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Basic authentication required" },
+              {
+                error: "invalid_client",
+                error_description: "Basic authentication required",
+              },
               { status: 400 },
             );
           }
           let headerClientId: string;
           let secret: string;
           try {
-            const decoded = Buffer.from(authHeader.slice(6), "base64url").toString();
+            const decoded = Buffer.from(
+              authHeader.slice(6),
+              "base64url",
+            ).toString();
             const colon = decoded.indexOf(":");
-            headerClientId = decodeURIComponent(colon >= 0 ? decoded.slice(0, colon) : decoded);
+            headerClientId = decodeURIComponent(
+              colon >= 0 ? decoded.slice(0, colon) : decoded,
+            );
             secret = colon >= 0 ? decoded.slice(colon + 1) : decoded;
           } catch {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client credentials" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
               { status: 400 },
             );
           }
           if (headerClientId !== tokenInfo.clientId) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client credentials" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client credentials",
+              },
               { status: 400 },
             );
           }
@@ -321,7 +382,10 @@ export async function POST(request: NextRequest) {
               Buffer.from(registration.clientSecret).length
           ) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client secret" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
               { status: 400 },
             );
           }
@@ -332,13 +396,19 @@ export async function POST(request: NextRequest) {
             )
           ) {
             return NextResponse.json(
-              { error: "invalid_client", error_description: "Invalid client secret" },
+              {
+                error: "invalid_client",
+                error_description: "Invalid client secret",
+              },
               { status: 400 },
             );
           }
         } else if (authMethod !== "none") {
           return NextResponse.json(
-            { error: "invalid_client", error_description: "Unsupported token_endpoint_auth_method" },
+            {
+              error: "invalid_client",
+              error_description: "Unsupported token_endpoint_auth_method",
+            },
             { status: 400 },
           );
         }
@@ -347,7 +417,10 @@ export async function POST(request: NextRequest) {
       const tokens = await rotateRefreshToken(refreshToken);
       if (!tokens) {
         return NextResponse.json(
-          { error: "server_error", error_description: "Failed to rotate refresh token" },
+          {
+            error: "server_error",
+            error_description: "Failed to rotate refresh token",
+          },
           { status: 500 },
         );
       }

@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
         ? [new URL(process.env.NEXTAUTH_URL).host]
         : []),
       ...(process.env.MCP_ALLOWED_HOSTS
-        ? process.env.MCP_ALLOWED_HOSTS.split(",").map((h) => h.trim()).filter(Boolean)
+        ? process.env.MCP_ALLOWED_HOSTS.split(",")
+            .map((h) => h.trim())
+            .filter(Boolean)
         : []),
       ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
       "localhost",
