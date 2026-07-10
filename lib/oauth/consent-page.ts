@@ -210,6 +210,29 @@ export function renderConsentPage(params: {
     transform: scale(0.98);
   }
 
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-color: transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
   .btn-primary {
     background: var(--accent);
     color: var(--bg);
@@ -289,15 +312,22 @@ export function renderConsentPage(params: {
           : ""
       }
 
-      <form method="post" action="${escapeHtml(params.postUrl)}" style="display: contents;">
+      <form id="approveForm" method="post" action="${escapeHtml(params.postUrl)}" style="display: contents;">
         <input type="hidden" name="consent_token" value="${params.consentToken}">
         <div class="actions">
           <a href="${escapeHtml(params.denyUrl)}" class="btn btn-secondary">Deny</a>
-          <button type="submit" class="btn btn-primary">Approve</button>
+          <button id="approveBtn" type="submit" class="btn btn-primary">Approve</button>
         </div>
       </form>
     </div>
   </div>
+<script>
+  document.getElementById("approveForm").addEventListener("submit", function() {
+    var btn = document.getElementById("approveBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Approving\u2026';
+  });
+</script>
 </body>
 </html>`;
 }
