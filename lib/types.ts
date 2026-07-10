@@ -65,24 +65,6 @@ export type TAchievement = {
   createdAt?: Date;
 } & Document;
 
-export type TApiKey = {
-  userId: string;
-  keyHash: string;
-  name: string;
-  scopes: string[];
-  lastUsedAt?: Date;
-  expiresAt?: Date;
-  revoked: boolean;
-} & Document;
-
-export type TApiUsage = {
-  apiKeyId: string;
-  userId: string;
-  resource: string;
-  date: Date;
-  count: number;
-} & Document;
-
 // TSC Type
 export type TSC = {
   areaId?: string;
@@ -276,3 +258,51 @@ export type ShowTaskDialogProps = {
   markAsDone: React.ReactNode;
   taskOptions: React.ReactNode;
 };
+
+// Auth Code Type (OAuth 2.1 PKCE)
+export type TAuthCode = {
+  code: string;
+  userId: string;
+  clientId: string;
+  redirectUri: string;
+  codeChallenge: string;
+  codeChallengeMethod: string;
+  scope: string[];
+  expiresAt: Date;
+} & Document;
+
+// Client Registration Type (RFC 7591 DCR)
+export type TClientRegistration = {
+  clientId: string;
+  clientSecret?: string;
+  clientName?: string;
+  redirectUris: string[];
+  grantTypes: string[];
+  responseTypes: string[];
+  tokenEndpointAuthMethod: string;
+  scope?: string;
+  createdAt: Date;
+} & Document;
+
+// OAuth Token Type (access & refresh tokens)
+export type TOAuthToken = {
+  tokenHash: string;
+  userId: string;
+  type: "access" | "refresh";
+  scopes: string[];
+  expiresAt: Date;
+  clientId?: string;
+} & Document;
+
+// Consent Challenge Type (server-enforced consent)
+export type TConsentChallenge = {
+  token: string;
+  userId: string;
+  clientId: string;
+  redirectUri: string;
+  codeChallenge: string;
+  codeChallengeMethod: string;
+  scope: string[];
+  state?: string;
+  expiresAt: Date;
+} & Document;

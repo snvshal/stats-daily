@@ -16,7 +16,11 @@ export default async function ShowTasks({ areaId }: { areaId: string }) {
     return (
       <div className="main-content flex flex-col gap-4 overflow-auto p-4 pt-0 max-sm:p-0">
         <div className="max-sm:px-4">
-          <AreaHeader areaId={areaId as string} area={area} user={ps(user)} />
+          <AreaHeader
+            areaId={areaId?.toString() ?? ""}
+            area={area}
+            user={ps(user)}
+          />
         </div>
         <TaskList data={serializableData} />
       </div>

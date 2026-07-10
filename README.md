@@ -2,165 +2,121 @@
 
 Stats Daily is a web application designed to help users track their daily tasks, set targets, and evaluate their work performance. By visualizing their progress and statistics, users can gain insights into their productivity and make necessary changes to improve.
 
+Stats Daily ships with a built-in **MCP server (Model Context Protocol)** that AI agents like Claude Desktop can connect to via **OAuth 2.1 + PKCE** for secure, scoped access to your tasks, notes, and achievements.
+
 ## Table of Contents
 
 - [Features](#features)
-- [MCP & API Access](#mcp--api-access)
+- [MCP Server Setup](#mcp-server-setup)
+- [Scopes & Permissions](#scopes--permissions)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Features
 
-- User authentication
+- User authentication via Google (NextAuth)
 - Daily task input and tracking
 - Visualization of task completion statistics
 - Clean and user-friendly interface
-- API Key management (create, revoke, scope-based access)
-- MCP-compatible context endpoint for AI agents
-- Secure, scoped, and revocable access
+- OAuth 2.1 + PKCE protected MCP server for AI agent access
 
-## MCP & API Access
+## MCP Server Setup
 
-Stats Daily exposes a **MCP context API** that allows users to connect their data to AI agents (Claude, Cursor, custom agents, etc.).
+Stats Daily implements a [Model Context Protocol](https://modelcontextprotocol.io) server that uses **OAuth 2.1 with PKCE** for authorization. This allows MCP-enabled AI agents (Claude Desktop, Cursor, etc.) to securely access your data.
 
-### MCP Scopes & Permissions
+### How It Works
 
-API keys use **scopes** to control what MCP clients are allowed to access.
-Each MCP endpoint validates scopes before processing the request.
+1. **Client Registration** — Clients register via [Dynamic Client Registration (RFC 7591)](https://datatracker.ietf.org/doc/html/rfc7591) at `POST /api/mcp/register`
+2. **Authorization** — The user signs in with Google and is presented with a **consent screen** listing the scopes the client is requesting
+3. **Token Exchange** — After approval, the client receives an authorization code, then exchanges it (with PKCE verification) for an access token and refresh token
+4. **Tool Access** — The MCP client uses the access token to call tools via `POST /api/mcp`
 
-#### Available Scopes
+### OAuth Endpoints
 
-**Areas**
+| Endpoint                                  | Method | Purpose                                  |
+| ----------------------------------------- | ------ | ---------------------------------------- |
+| `/.well-known/oauth-authorization-server` | GET    | Authorization server metadata (RFC 8414) |
+| `/.well-known/oauth-protected-resource`   | GET    | Protected resource metadata              |
+| `/api/mcp/register`                       | POST   | Dynamic client registration              |
+| `/api/mcp/authorize`                      | GET    | Login + consent screen                   |
+| `/api/mcp/authorize`                      | POST   | Submit consent decision                  |
+| `/api/mcp/token`                          | POST   | Exchange code for tokens, refresh tokens |
+| `/api/mcp`                                | POST   | MCP tool execution                       |
 
-- `mcp:areas:read` – Read areas and its tasks and note
-<!-- * `mcp:areas:write` – Create or update areas -->
+### Configuring Claude Desktop
 
-**Achievements**
-
-- `mcp:achievements:read` – Read achievements
-- `mcp:achievements:write` – Create achievements
-
-#### Scope Enforcement
-
-- **Read endpoints** require the corresponding `:read` scope
-- **Write endpoints** require the corresponding `:write` scope
-- Requests without the required scope return **403 Forbidden**
-
-#### Example
-
-To allow an MCP client to **read context and add achievements**, assign:
-
-```json
-["mcp:areas:read", "mcp:achievements:read", "mcp:achievements:write"]
-```
-
-Scopes can be updated at any time from the **API Keys → Permissions** settings for each API Key.
-
----
-
-### Authentication
-
-All MCP requests are authenticated using **Bearer API keys**.
-
-```http
-Authorization: Bearer <API_KEY>
-```
-
----
-
-### MCP Context Endpoint
-
-```http
-GET /api/mcp/context
-```
-
-Returns all areas with tasks for the authenticated user.
-
----
-
-### MCP Achievements Endpoints
-
-```http
-GET /api/mcp/achievements?date=YYYY-MM-DD
-```
-
-Returns all achievements and note for the authenticated user on the specified date.
-
-```http
-POST /api/mcp/achievements
-```
-
-**Request body:**
-
-```json
-{
-  "text": "Achievement text",
-  "note": "Added note with it" // Optional
-}
-```
-
-Adds a new achievement for the authenticated user.
-
----
-
-## MCP Server (`@snvshal/sndo`)
-
-Stats Daily provides an official **Model Context Protocol (MCP) server** that allows AI agents to securely access a user’s tasks and notes using API keys.
-
-### Package
-
-```bash
-npx @snvshal/sndo
-```
-
-This MCP server communicates over **stdio** and is compatible with MCP-enabled clients such as Claude, Cursor, and custom agents.
-
----
-
-## Setting Up MCP Access
-
-### 1. Create an API Key
-
-- Go to **API Keys**
-- Create a new key
-
-### 2. Configure Your MCP Client
-
-Set your API key as an environment variable:
-
-```bash
-export SNDO_API_KEY=your_api_key_here
-```
-
-Or provide it directly in your MCP client configuration.
-
-### 3. Example MCP Client Configuration
+Add this to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "sndo": {
+    "stats-daily": {
       "command": "npx",
-      "args": ["@snvshal/sndo"],
+      "args": ["-y", "@modelcontextprotocol/inspector"],
       "env": {
-        "SNDO_API_KEY": "your_api_key_here"
+        "MCP_SERVER_URL": "http://localhost:3000/api/mcp"
       }
     }
   }
 }
 ```
 
-## What Data Is Exposed
+> **Note:** The recommended way to connect is via the **remote MCP URL** directly in clients that support OAuth. The `@snvshal/sndo` npm package provides a stdio alternative for clients without OAuth support.
 
-<!-- With the `mcp:read` scope, the MCP server can access: -->
+## Scopes & Permissions
 
-- Areas
-- Tasks
-- Notes
-- Last updated timestamps
+Each MCP tool requires a specific scope. The authorization server enforces scopes on every request.
 
-Access is **read-only**, scoped, and can be revoked at any time.
+### Available Scopes
+
+**Areas**
+
+- `mcp:areas:read` — Read areas, tasks, and area notes
+- `mcp:areas:write` — Create or update areas and tasks
+
+**Notes**
+
+- `mcp:notes:read` — Read daily notes
+- `mcp:notes:write` — Create or update daily notes
+
+**Achievements**
+
+- `mcp:achievements:read` — Read achievements
+- `mcp:achievements:write` — Create achievements
+
+### Default Scopes
+
+If the client omits the `scope` parameter during authorization, the following scopes are granted by default:
+
+```
+mcp:areas:read mcp:notes:read mcp:achievements:read
+```
+
+### Scope Enforcement
+
+- **Read tools** (e.g. `get_area`, `get_note`, `list_areas`) require the corresponding `:read` scope
+- **Write tools** (e.g. `create_area`, `save_note`, `save_achievement`) require the corresponding `:write` scope
+- Requests without the required scope return a **403 Forbidden** error
+- When auth is disabled (`MCP_DISABLE_AUTH=true`), scope checks are skipped
+
+### Available Tools
+
+| Tool               | Required Scope           | Description                           |
+| ------------------ | ------------------------ | ------------------------------------- |
+| `list_areas`       | `mcp:areas:read`         | List all areas/topics                 |
+| `get_area`         | `mcp:areas:read`         | Get a specific area by ID             |
+| `create_area`      | `mcp:areas:write`        | Create a new area/topic               |
+| `update_area_name` | `mcp:areas:write`        | Rename an area                        |
+| `update_area_note` | `mcp:areas:write`        | Update area note                      |
+| `update_task`      | `mcp:areas:write`        | Update a task                         |
+| `add_task`         | `mcp:areas:write`        | Add a new task                        |
+| `delete_task`      | `mcp:areas:write`        | Delete a task                         |
+| `delete_area`      | `mcp:areas:write`        | Delete an area and all tasks          |
+| `get_note`         | `mcp:notes:read`         | Get daily notes (optionally by date)  |
+| `save_note`        | `mcp:notes:write`        | Save a daily note                     |
+| `get_achievements` | `mcp:achievements:read`  | Get achievements (optionally by date) |
+| `save_achievement` | `mcp:achievements:write` | Save a new achievement                |
 
 ---
 

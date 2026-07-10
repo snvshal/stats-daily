@@ -104,7 +104,8 @@ export function AchievementNote({
 }: {
   achievement: TAchievement;
 }) {
-  const { _id: id, note } = achievement;
+  const id = achievement._id?.toString() ?? "";
+  const { note } = achievement;
 
   const tRef = useRef<HTMLTextAreaElement>(null);
 
@@ -125,7 +126,7 @@ export function AchievementNote({
     setInputNote(false);
     setNoteState(noteInput);
 
-    await updateAchievementNote(id as string, noteInput);
+    await updateAchievementNote(id, noteInput);
   };
 
   const handleInputNoteClose = () => {
@@ -289,7 +290,7 @@ export function AchievementPageComponent({
   return (
     <>
       <div className="flex-1">
-        <AchievementForm id={achievement._id as string} />
+        <AchievementForm id={achievement._id?.toString() ?? ""} />
         <Tasks achievement={achievement} />
       </div>
       <div className="h-full w-2/5 border-l max-md:hidden">
@@ -312,7 +313,7 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
     setAchievements((prev) => prev.filter((task) => task._id !== taskId));
 
     try {
-      await deleteAchievement(achievement._id as string, taskId);
+      await deleteAchievement(achievement._id?.toString() ?? "", taskId);
     } catch (error) {
       setAchievements((achievement?.achievements ?? []) as TAchievementTask[]);
       console.error("Failed to delete achievement:", error);
@@ -340,7 +341,7 @@ export function Tasks({ achievement }: { achievement: TAchievement }) {
               <div className="flex-1">
                 <span>{task.text}</span>
                 <button
-                  onClick={() => handleDelete(task._id as string)}
+                  onClick={() => handleDelete(task._id?.toString() ?? "")}
                   className="float-right pl-2 pt-2 leading-3"
                 >
                   <TrashIcon

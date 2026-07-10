@@ -7,6 +7,7 @@ export async function middleware(req: NextRequest) {
 
   if (url.startsWith("/api/auth")) return NextResponse.next();
   if (url.startsWith("/api/mcp")) return NextResponse.next();
+  if (url.startsWith("/.well-known")) return NextResponse.next();
 
   const token = await getToken({ req });
 

@@ -70,6 +70,12 @@ export default function HomePage() {
           image="/achievements.png"
         />
 
+        <SectionComponent
+          title="AI Agent Ready — Connect Any MCP Client"
+          description="Access your tasks, notes, and achievements through any MCP-compatible AI assistant. Secure OAuth 2.1 + PKCE authorization keeps your data safe."
+          image="/mcp-oauth.png"
+        />
+
         {/* Call to Action */}
         <section className="w-full bg-background px-4 py-12 sm:px-8 md:px-16 md:py-24 lg:py-32">
           <div className="flex flex-col items-center justify-center space-y-8 text-center">
