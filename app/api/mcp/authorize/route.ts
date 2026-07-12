@@ -46,8 +46,73 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!registration.redirectUris.includes(redirectUri)) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    const LOOPBACK_HOSTS = ["localhost", "127.0.0.1", "[::1]", "::1"];
+
+    try {
+      if (new URL(redirectUri).hash) {
+        return NextResponse.json(
+          {
+            error: "invalid_request",
+            error_description: "redirect_uri must not contain a fragment",
+          },
+          { status: 400 },
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        {
+          error: "invalid_request",
+          error_description: "redirect_uri is malformed",
+        },
+        { status: 400 },
+      );
+    }
+
+    const exactMatch = registration.redirectUris.includes(redirectUri);
+    if (!exactMatch) {
+      try {
+        const reqUrl = new URL(redirectUri);
+        if (!LOOPBACK_HOSTS.includes(reqUrl.hostname)) {
+          return NextResponse.json(
+            {
+              error: "invalid_request",
+              error_description: "redirect_uri does not match registered URIs",
+            },
+            { status: 400 },
+          );
+        }
+        const loopbackMatch = registration.redirectUris.some((uri: string) => {
+          try {
+            const registeredUrl = new URL(uri);
+            return (
+              !registeredUrl.hash &&
+              registeredUrl.hostname === reqUrl.hostname &&
+              registeredUrl.protocol === reqUrl.protocol &&
+              registeredUrl.pathname === reqUrl.pathname &&
+              registeredUrl.search === reqUrl.search
+            );
+          } catch {
+            return false;
+          }
+        });
+        if (!loopbackMatch) {
+          return NextResponse.json(
+            {
+              error: "invalid_request",
+              error_description: "redirect_uri does not match registered URIs",
+            },
+            { status: 400 },
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          {
+            error: "invalid_request",
+            error_description: "redirect_uri is malformed",
+          },
+          { status: 400 },
+        );
+      }
     }
 
     const session = await getServerSession();
