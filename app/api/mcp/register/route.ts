@@ -84,11 +84,21 @@ export async function POST(request: NextRequest) {
     for (const uri of redirectUris) {
       try {
         const parsed = new URL(uri);
+        if (parsed.hash) {
+          return NextResponse.json(
+            {
+              error: "invalid_client_metadata",
+              error_description: "redirect_uri must not contain a fragment",
+            },
+            { status: 400 },
+          );
+        }
         if (
           parsed.protocol !== "https:" &&
           parsed.hostname !== "localhost" &&
           parsed.hostname !== "127.0.0.1" &&
-          parsed.hostname !== "[::1]"
+          parsed.hostname !== "[::1]" &&
+          parsed.hostname !== "::1"
         ) {
           return NextResponse.json(
             {
