@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         const recent = await AuthCode.findOne()
           .sort({ createdAt: -1 })
           .select("code createdAt expiresAt")
-          .lean();
+          .lean<{ code: string; createdAt?: Date; expiresAt: Date }>();
         console.error("[MCP_TOKEN_CODE_MISSING]", {
           codePrefix: code?.substring(0, 12),
           serverTime: new Date().toISOString(),
