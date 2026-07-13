@@ -61,14 +61,40 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (redirectUri && authCode.redirectUri !== redirectUri) {
-        return NextResponse.json(
-          {
-            error: "invalid_grant",
-            error_description: "redirect_uri mismatch",
-          },
-          { status: 400 },
-        );
+      if (redirectUri) {
+        const LOOPBACK_HOSTS = ["localhost", "127.0.0.1", "[::1]", "::1"];
+        const isLoopbackHost = (h: string) => LOOPBACK_HOSTS.includes(h);
+
+        let uriMatch: boolean;
+        if (redirectUri === authCode.redirectUri) {
+          uriMatch = true;
+        } else {
+          try {
+            const reqUrl = new URL(redirectUri);
+            const storedUrl = new URL(authCode.redirectUri);
+            const hostMatch =
+              reqUrl.hostname === storedUrl.hostname ||
+              (isLoopbackHost(reqUrl.hostname) &&
+                isLoopbackHost(storedUrl.hostname));
+            uriMatch =
+              hostMatch &&
+              reqUrl.protocol === storedUrl.protocol &&
+              reqUrl.pathname === storedUrl.pathname &&
+              reqUrl.search === storedUrl.search;
+          } catch {
+            uriMatch = false;
+          }
+        }
+
+        if (!uriMatch) {
+          return NextResponse.json(
+            {
+              error: "invalid_grant",
+              error_description: "redirect_uri mismatch",
+            },
+            { status: 400 },
+          );
+        }
       }
 
       if (clientId && authCode.clientId !== clientId) {
