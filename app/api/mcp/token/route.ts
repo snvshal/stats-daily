@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db/mongodb";
-import { AuthCode } from "@/models/auth-code.model";
+import { ConsentChallenge } from "@/models/consent-challenge.model";
 import { ClientRegistration } from "@/models/client-registration.model";
 import {
   createAccessToken,
@@ -46,34 +46,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.error("[MCP_TOKEN_LOOKUP]", {
-        codePrefix: code?.substring(0, 12),
-        verifierPrefix: codeVerifier?.substring(0, 8),
-        grantType,
-        clientId: clientId ?? "(not sent)",
-        redirectUri,
-        contentType: ct,
-      });
-
-      const authCode = await AuthCode.findOneAndDelete({
+      const authCode = await ConsentChallenge.findOneAndDelete({
         code,
         expiresAt: { $gt: new Date() },
       });
 
       if (!authCode) {
-        const total = await AuthCode.countDocuments();
-        const recent = await AuthCode.findOne()
-          .sort({ createdAt: -1 })
-          .select("code createdAt expiresAt")
-          .lean<{ code: string; createdAt?: Date; expiresAt: Date }>();
-        console.error("[MCP_TOKEN_CODE_MISSING]", {
-          codePrefix: code?.substring(0, 12),
-          serverTime: new Date().toISOString(),
-          totalAuthCodes: total,
-          recentCodePrefix: recent
-            ? `${recent.code.substring(0, 12)} (created ${recent.createdAt?.toISOString()}, expires ${recent.expiresAt.toISOString()})`
-            : "none",
-        });
         return NextResponse.json(
           {
             error: "invalid_grant",

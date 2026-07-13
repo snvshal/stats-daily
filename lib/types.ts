@@ -297,6 +297,7 @@ export type TOAuthToken = {
 // Consent Challenge Type (server-enforced consent)
 export type TConsentChallenge = {
   token: string;
+  code?: string;
   userId: string;
   clientId: string;
   redirectUri: string;
