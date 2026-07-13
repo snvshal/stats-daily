@@ -48,6 +48,9 @@ export async function GET(request: NextRequest) {
 
     const LOOPBACK_HOSTS = ["localhost", "127.0.0.1", "[::1]", "::1"];
 
+    const isLoopbackHost = (hostname: string) =>
+      LOOPBACK_HOSTS.includes(hostname);
+
     try {
       if (new URL(redirectUri).hash) {
         return NextResponse.json(
@@ -84,9 +87,13 @@ export async function GET(request: NextRequest) {
         const loopbackMatch = registration.redirectUris.some((uri: string) => {
           try {
             const registeredUrl = new URL(uri);
+            const hostMatch =
+              registeredUrl.hostname === reqUrl.hostname ||
+              (isLoopbackHost(registeredUrl.hostname) &&
+                isLoopbackHost(reqUrl.hostname));
             return (
               !registeredUrl.hash &&
-              registeredUrl.hostname === reqUrl.hostname &&
+              hostMatch &&
               registeredUrl.protocol === reqUrl.protocol &&
               registeredUrl.pathname === reqUrl.pathname &&
               registeredUrl.search === reqUrl.search
@@ -96,6 +103,10 @@ export async function GET(request: NextRequest) {
           }
         });
         if (!loopbackMatch) {
+          console.error("[MCP_REDIRECT_MISMATCH]", {
+            requested: redirectUri,
+            registered: registration.redirectUris,
+          });
           return NextResponse.json(
             {
               error: "invalid_request",
