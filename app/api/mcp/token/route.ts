@@ -46,12 +46,34 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      console.error("[MCP_TOKEN_LOOKUP]", {
+        codePrefix: code?.substring(0, 12),
+        verifierPrefix: codeVerifier?.substring(0, 8),
+        grantType,
+        clientId: clientId ?? "(not sent)",
+        redirectUri,
+        contentType: ct,
+      });
+
       const authCode = await AuthCode.findOneAndDelete({
         code,
         expiresAt: { $gt: new Date() },
       });
 
       if (!authCode) {
+        const total = await AuthCode.countDocuments();
+        const recent = await AuthCode.findOne()
+          .sort({ createdAt: -1 })
+          .select("code createdAt expiresAt")
+          .lean();
+        console.error("[MCP_TOKEN_CODE_MISSING]", {
+          codePrefix: code?.substring(0, 12),
+          serverTime: new Date().toISOString(),
+          totalAuthCodes: total,
+          recentCodePrefix: recent
+            ? `${recent.code.substring(0, 12)} (created ${recent.createdAt?.toISOString()}, expires ${recent.expiresAt.toISOString()})`
+            : "none",
+        });
         return NextResponse.json(
           {
             error: "invalid_grant",
