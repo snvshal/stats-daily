@@ -2,7 +2,6 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db/mongodb";
-import { AuthCode } from "@/models/auth-code.model";
 import { ClientRegistration } from "@/models/client-registration.model";
 import { ConsentChallenge } from "@/models/consent-challenge.model";
 import { User } from "@/models/user.model";
@@ -199,7 +198,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "invalid_request" }, { status: 400 });
     }
 
-    const challenge = await ConsentChallenge.findOneAndDelete({
+    const challenge = await ConsentChallenge.findOne({
       token: consentToken,
       expiresAt: { $gt: new Date() },
     });
@@ -220,16 +219,15 @@ export async function POST(request: NextRequest) {
 
     const code = crypto.randomBytes(32).toString("hex");
 
-    await AuthCode.create({
-      code,
-      userId: challenge.userId,
-      clientId: challenge.clientId,
-      redirectUri: challenge.redirectUri,
-      codeChallenge: challenge.codeChallenge,
-      codeChallengeMethod: challenge.codeChallengeMethod,
-      scope: challenge.scope,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-    });
+    await ConsentChallenge.updateOne(
+      { _id: challenge._id },
+      {
+        $set: {
+          code,
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        },
+      },
+    );
 
     const redirectUrl = new URL(challenge.redirectUri);
     redirectUrl.searchParams.set("code", code);

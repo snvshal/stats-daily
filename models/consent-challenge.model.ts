@@ -4,6 +4,7 @@ import type { TConsentChallenge } from "@/lib/types";
 const ConsentChallengeSchema = new Schema<TConsentChallenge>(
   {
     token: { type: String, required: true, unique: true },
+    code: { type: String },
     userId: { type: String, required: true },
     clientId: { type: String, required: true },
     redirectUri: { type: String, required: true },
