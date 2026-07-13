@@ -259,18 +259,6 @@ export type ShowTaskDialogProps = {
   taskOptions: React.ReactNode;
 };
 
-// Auth Code Type (OAuth 2.1 PKCE)
-export type TAuthCode = {
-  code: string;
-  userId: string;
-  clientId: string;
-  redirectUri: string;
-  codeChallenge: string;
-  codeChallengeMethod: string;
-  scope: string[];
-  expiresAt: Date;
-} & Document;
-
 // Client Registration Type (RFC 7591 DCR)
 export type TClientRegistration = {
   clientId: string;
